@@ -4,7 +4,9 @@
   "description": "A CLI for release automation",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build-ts": "tsc",
+    "watch-ts": "tsc -w",
+    "tslint": "tslint -c tslint.json -p tsconfig.json"
   },
   "keywords": [
     "github",
@@ -12,5 +14,10 @@
     "semver"
   ],
   "author": "Evans Owino",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^10.12.24",
+    "tslint": "^5.12.1",
+    "typescript": "^3.3.3"
+  }
 }
