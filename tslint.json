@@ -6,7 +6,8 @@
     "no-single-line-block-comment": false,
     "no-inferrable-types": true,
     "quotemark": false,
-    "no-console": false
+    "no-console": false,
+    "arrow-parens": false
   },
   "rulesDirectory": []
 }
