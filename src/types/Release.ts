@@ -3,4 +3,6 @@ export interface IRealease {
   branchName: string;
   /** The list of branches to branch into branchName */
   branchesToMerge: string[];
+  /** Last logged error while executing */
+  error?: string;
 }
