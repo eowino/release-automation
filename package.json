@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "description": "A CLI for release automation",
   "main": "index.js",
+  "engines": {
+    "node": ">=9.11.2"
+  },
   "scripts": {
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
