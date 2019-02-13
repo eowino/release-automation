@@ -14,3 +14,20 @@ export async function getAllBranches() {
 
   return promise;
 }
+
+export async function isGitRepository(): Promise<boolean> {
+  const git = spawn('git', ['rev-parse', '--is-inside-work-tree']);
+
+  const promise: Promise<boolean> = new Promise(res => {
+    git.stdout.on('data', (data: Buffer) => {
+      const isGitRepo = data.toString('utf8').trim() === 'true' ? true : false;
+      res(isGitRepo);
+    });
+
+    git.stderr.on('data', () => {
+      res(false);
+    });
+  });
+
+  return promise;
+}
