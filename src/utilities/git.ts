@@ -53,14 +53,14 @@ export async function isGitRepository(): Promise<boolean> {
 }
 
 export async function createBranch(
-  newBranch = '',
-  existingBranch = 'master',
+  newBranchName: string,
+  baseBranch = 'master',
 ): Promise<string> {
-  if (!newBranch) {
+  if (!newBranchName) {
     return Promise.reject(GitConstants.ERROR_CREATE_BRANCH);
   }
 
-  const git = spawn('git', ['checkout', '-b', newBranch, existingBranch]);
+  const git = spawn('git', ['checkout', '-b', newBranchName, baseBranch]);
 
   const promise: Promise<string> = new Promise((res, rej) => {
     git.stdout.on('data', (data: Buffer) => {
