@@ -16,3 +16,7 @@ Once everything has run to completion, the `release-progress.json` will be delet
 ## Idea 2 - `--resume` flag
 
 As mentioned above, the idea of resuming work from a certain checkpoint
+
+## Idea 3 - `release-config.json`
+
+A config file that contains all the arguments you want to pass to the CLI

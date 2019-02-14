@@ -7,8 +7,8 @@
     "node": ">=9.11.2"
   },
   "scripts": {
-    "build-ts": "tsc",
-    "watch-ts": "tsc -w",
+    "build": "tsc",
+    "start": "tsc -w",
     "tslint": "tslint -c tslint.json -p tsconfig.json"
   },
   "keywords": [
@@ -19,8 +19,10 @@
   "author": "Evans Owino",
   "license": "MIT",
   "devDependencies": {
+    "@types/inquirer": "0.0.43",
     "@types/node": "^10.12.24",
     "chalk": "^2.4.2",
+    "inquirer": "^6.2.2",
     "tslint": "^5.12.1",
     "typescript": "^3.3.3"
   }
