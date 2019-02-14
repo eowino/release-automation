@@ -7,8 +7,8 @@
     "node": ">=9.11.2"
   },
   "scripts": {
-    "build-ts": "tsc",
-    "watch-ts": "tsc -w",
+    "build": "tsc",
+    "start": "tsc -w",
     "tslint": "tslint -c tslint.json -p tsconfig.json"
   },
   "keywords": [
