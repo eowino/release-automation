@@ -20,6 +20,7 @@ async function run() {
     const { value, error } = await Git.createBranch(branchName, baseBranch);
     if (error) {
       Log.danger(error);
+      process.exit();
     } else if (value) {
       Log.success(value);
     }
