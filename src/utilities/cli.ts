@@ -5,17 +5,43 @@ import * as Prompt from '../constants/Prompt';
 import * as CLITypes from '../types/CLI';
 import * as git from './git';
 
+async function continueIfBranchesNotChosen(): Promise<boolean> {
+  try {
+    const {
+      shouldContinue,
+    }: { shouldContinue: boolean } = await inquirer.prompt({
+      message: Prompt.NO_BRANCHES_CONTINUE,
+      name: 'shouldContinue',
+      type: 'confirm',
+    });
+
+    return shouldContinue;
+  } catch (e) {
+    return null;
+  }
+}
+
 export async function promptBranches(): Promise<CLITypes.IPromptBranches> {
   try {
+    let shouldContinue = true;
     const branches = await git.getAllBranches();
-    const answers: { selectedBranches: string[] } = await inquirer.prompt({
+    const {
+      selectedBranches,
+    }: { selectedBranches: string[] } = await inquirer.prompt({
       choices: branches,
       message: Prompt.CHOOSE_BRANCHES,
       name: 'selectedBranches',
       type: 'checkbox',
     });
 
-    return answers;
+    if (selectedBranches.length === 0) {
+      shouldContinue = await continueIfBranchesNotChosen();
+    }
+
+    return {
+      selectedBranches,
+      shouldContinue,
+    };
   } catch (e) {
     return null;
   }
