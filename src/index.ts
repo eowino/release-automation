@@ -10,8 +10,20 @@ async function run() {
     process.exit();
   }
 
-  const { baseBranch, branchName } = await CLI.promptForNewBranchName();
-  const createBranch = await Git.createBranch(branchName, baseBranch); // TODO handle error
+  const {
+    baseBranch,
+    branchName,
+    useExisiting,
+  } = await CLI.promptForNewBranchName();
+
+  if (!useExisiting) {
+    const { value, error } = await Git.createBranch(branchName, baseBranch);
+    if (error) {
+      Log.danger(error);
+    } else if (value) {
+      Log.success(value);
+    }
+  }
 }
 
 run();
