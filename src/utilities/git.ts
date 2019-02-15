@@ -1,6 +1,7 @@
 import { spawn } from 'child_process';
 
 import * as GitConstants from '../constants/Git';
+import { IResponse } from '../types/Utilities';
 import { bufferToString } from './utilities';
 
 export async function getAllBranches(): Promise<string[]> {
@@ -54,26 +55,56 @@ export async function isGitRepository(): Promise<boolean> {
 
 export async function createBranch(
   newBranchName: string,
-  baseBranch = 'master',
-): Promise<string> {
+  baseBranch = GitConstants.DEFAULT_BASE_BRANCH,
+): Promise<IResponse> {
   if (!newBranchName) {
-    return Promise.reject(GitConstants.ERROR_CREATE_BRANCH);
+    return Promise.resolve({
+      error: GitConstants.ERROR_CREATE_BRANCH,
+    });
   }
 
   const git = spawn('git', ['checkout', '-b', newBranchName, baseBranch]);
 
-  const promise: Promise<string> = new Promise((res, rej) => {
+  const promise: Promise<IResponse> = new Promise((res, rej) => {
     git.stdout.on('data', (data: Buffer) => {
-      res(bufferToString(data));
+      res({
+        value: bufferToString(data),
+      });
     });
     git.stderr.on('data', (data: Buffer) => {
       const output = bufferToString(data);
       // sometimes reports a false negative
       if (output.includes('Switched to a new branch')) {
-        res(output);
+        res({
+          value: output,
+        });
       } else {
-        rej(output);
+        res({
+          error: output,
+        });
       }
+    });
+  });
+
+  return promise;
+}
+
+/**
+ * @param branchName The name of the branch you want to merge into the current branch
+ */
+export async function mergeBranch(branchName: string): Promise<IResponse> {
+  const git = spawn('git', ['merge', branchName]);
+
+  const promise: Promise<IResponse> = new Promise(res => {
+    git.stdout.on('data', (data: Buffer) => {
+      res({
+        value: bufferToString(data),
+      });
+    });
+    git.stderr.on('data', (data: Buffer) => {
+      res({
+        error: bufferToString(data),
+      });
     });
   });
 

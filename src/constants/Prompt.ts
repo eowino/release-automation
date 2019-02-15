@@ -3,6 +3,6 @@ export const CHOOSE_BRANCHES =
 
 export const NEW_BRANCH_NAME = 'Name of the new branch?';
 
-export const DEFAULT_BASE_BRANCH = 'master';
+export const BASE_BRANCH = 'Name of the branch to base it on?';
 
-export const BASE_BRANCH = `Name of the branch to base it on? (default = ${DEFAULT_BASE_BRANCH})`;
+export const USE_EXISTING_BRANCH = 'Use existing branch';
