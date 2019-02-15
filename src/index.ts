@@ -3,6 +3,8 @@ import * as CLI from './utilities/cli';
 import * as Git from './utilities/git';
 import * as Log from './utilities/logger';
 
+run();
+
 async function run() {
   const isGitRepo = await Git.isGitRepository();
   if (!isGitRepo) {
@@ -25,6 +27,15 @@ async function run() {
       Log.success(value);
     }
   }
-}
 
-run();
+  const { selectedBranches, shouldContinue } = await CLI.promptBranches();
+
+  if (selectedBranches.length === 0 && !shouldContinue) {
+    Log.log('Goodbye ✌️');
+    process.exit(0);
+  }
+
+  if (selectedBranches.length > 0) {
+    // merge the branches into the new branch (should be current branch at this point)
+  }
+}
