@@ -1,7 +1,7 @@
 import { spawn } from 'child_process';
 
 import * as GitConstants from '../constants/Git';
-import { IResponse } from '../types/Utilities';
+import { IResponseString, IResponseStringList } from '../types/Utilities';
 import { bufferToString } from './utilities';
 
 export async function getAllBranches(): Promise<string[]> {
@@ -56,7 +56,7 @@ export async function isGitRepository(): Promise<boolean> {
 export async function createBranch(
   newBranchName: string,
   baseBranch = GitConstants.DEFAULT_BASE_BRANCH,
-): Promise<IResponse> {
+): Promise<IResponseString> {
   if (!newBranchName) {
     return Promise.resolve({
       error: GitConstants.ERROR_CREATE_BRANCH,
@@ -65,7 +65,7 @@ export async function createBranch(
 
   const git = spawn('git', ['checkout', '-b', newBranchName, baseBranch]);
 
-  const promise: Promise<IResponse> = new Promise((res, rej) => {
+  const promise: Promise<IResponseString> = new Promise((res, rej) => {
     git.stdout.on('data', (data: Buffer) => {
       res({
         value: bufferToString(data),
@@ -92,10 +92,12 @@ export async function createBranch(
 /**
  * @param branchName The name of the branch you want to merge into the current branch
  */
-export async function mergeBranch(branchName: string): Promise<IResponse> {
+export async function mergeBranch(
+  branchName: string,
+): Promise<IResponseString> {
   const git = spawn('git', ['merge', branchName]);
 
-  const promise: Promise<IResponse> = new Promise(res => {
+  const promise: Promise<IResponseString> = new Promise(res => {
     git.stdout.on('data', (data: Buffer) => {
       res({
         value: bufferToString(data),
@@ -109,4 +111,34 @@ export async function mergeBranch(branchName: string): Promise<IResponse> {
   });
 
   return promise;
+}
+
+function mergeMessage(branchName: string, response: string) {
+  return `Branch name: ${branchName}, Result: ${response}`;
+}
+
+/**
+ * @param branches The list of branches you want to merge into the current branch
+ * @returns A list of error messages
+ */
+export async function mergeBranches(
+  branches: string[],
+): Promise<IResponseStringList> {
+  const failedMerges: string[] = [];
+  const succesfulMerges: string[] = [];
+
+  for (const branch of branches) {
+    const response = await mergeBranch(branch);
+    if (response.error) {
+      failedMerges.push(mergeMessage(branch, response.error as string));
+    }
+    if (response.value) {
+      succesfulMerges.push(mergeMessage(branch, response.value as string));
+    }
+  }
+
+  return Promise.resolve<IResponseStringList>({
+    error: failedMerges,
+    value: succesfulMerges,
+  });
 }
