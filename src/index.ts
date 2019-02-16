@@ -31,11 +31,12 @@ async function run() {
   const { selectedBranches, shouldContinue } = await CLI.promptBranches();
 
   if (selectedBranches.length === 0 && !shouldContinue) {
-    Log.log('Goodbye ✌️');
-    process.exit(0);
+    Log.log(CLIConstants.GOODBYE);
+    process.exit();
   }
 
   if (selectedBranches.length > 0) {
     // merge the branches into the new branch (should be current branch at this point)
+    Log.log(CLIConstants.BEGIN_MERGE);
   }
 }
