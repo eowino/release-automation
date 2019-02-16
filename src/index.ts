@@ -36,7 +36,26 @@ async function run() {
   }
 
   if (selectedBranches.length > 0) {
-    // merge the branches into the new branch (should be current branch at this point)
     Log.log(CLIConstants.BEGIN_MERGE);
+
+    const {
+      error: errorMerges,
+      value: successfulMerges,
+    } = await Git.mergeBranches(selectedBranches);
+
+    if (successfulMerges.length > 0) {
+      successfulMerges.forEach(message => {
+        Log.success(message);
+      });
+    }
+
+    if (errorMerges.length > 0) {
+      (errorMerges as string[]).forEach(errorMessage => {
+        Log.danger(errorMessage);
+      });
+
+      Log.danger(CLIConstants.EXIT_AFTER_MERGE_FAIL);
+      process.exit();
+    }
   }
 }
