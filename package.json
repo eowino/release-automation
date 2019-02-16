@@ -17,6 +17,7 @@
     "semver"
   ],
   "author": "Evans Owino",
+  "homepage": "https://github.com/eowino/release-automation",
   "license": "MIT",
   "devDependencies": {
     "@types/inquirer": "0.0.43",
