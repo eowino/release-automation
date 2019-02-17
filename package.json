@@ -1,8 +1,11 @@
 {
   "name": "release-automation",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "An opinionated CLI for release automation",
   "main": "lib/index.js",
+  "bin": {
+    "release-automation": "./lib/index.js"
+  },
   "files": [
     "lib/**/*"
   ],
