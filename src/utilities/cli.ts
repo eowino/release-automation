@@ -7,12 +7,15 @@ import * as NPM from '../utilities/npm';
 import * as Util from '../utilities/utilities';
 import * as Git from './git';
 
-async function continueIfBranchesNotChosen(): Promise<boolean> {
+async function continueIfBranchesNotChosen(
+  currentBranch: string,
+): Promise<boolean> {
   try {
+    const branchMessage = ` (current branch = ${currentBranch})`;
     const {
       shouldContinue,
     }: { shouldContinue: boolean } = await inquirer.prompt({
-      message: Prompt.NO_BRANCHES_CONTINUE,
+      message: Prompt.NO_BRANCHES_CONTINUE + branchMessage,
       name: 'shouldContinue',
       type: 'confirm',
     });
@@ -23,21 +26,27 @@ async function continueIfBranchesNotChosen(): Promise<boolean> {
   }
 }
 
-export async function promptBranches(): Promise<CLITypes.IPromptBranches> {
+export async function promptBranches(
+  currentBranch: string,
+): Promise<CLITypes.IPromptBranches> {
   try {
     let shouldContinue = true;
     const branches = await Git.getAllBranches();
+    const withoutCurrentBrand = branches.filter(
+      branch => branch !== currentBranch,
+    );
+
     const {
       selectedBranches,
     }: { selectedBranches: string[] } = await inquirer.prompt({
-      choices: branches,
+      choices: withoutCurrentBrand,
       message: Prompt.CHOOSE_BRANCHES,
       name: 'selectedBranches',
       type: 'checkbox',
     });
 
     if (selectedBranches.length === 0) {
-      shouldContinue = await continueIfBranchesNotChosen();
+      shouldContinue = await continueIfBranchesNotChosen(currentBranch);
     }
 
     return {
@@ -60,17 +69,20 @@ export async function promptForNewBranchName(): Promise<
       type: 'input',
     });
 
+    const defaultChosen = branchName === Prompt.USE_EXISTING_BRANCH;
+
     const { baseBranch }: { baseBranch: string } = await inquirer.prompt({
       default: GitConstants.DEFAULT_BASE_BRANCH,
       message: Prompt.BASE_BRANCH,
       name: 'baseBranch',
       type: 'input',
+      when: defaultChosen === false,
     });
 
     return {
       baseBranch,
-      branchName,
-      useExisiting: branchName === Prompt.USE_EXISTING_BRANCH,
+      branchName: defaultChosen ? null : branchName,
+      useExisiting: defaultChosen,
     };
   } catch (e) {
     return null;

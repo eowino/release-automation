@@ -8,6 +8,6 @@ export const BASE_BRANCH = 'Name of the branch to base it on?';
 export const USE_EXISTING_BRANCH = 'Use existing branch';
 
 export const NO_BRANCHES_CONTINUE =
-  "You didn't select any branches. Do you still wish to continue with the release process?";
+  "You didn't select any branches. Do you still wish to continue with the release process on the current branch?";
 
 export const NEXT_RELEASE_VERSION = 'What should the next release version be?';

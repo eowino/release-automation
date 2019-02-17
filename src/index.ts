@@ -1,4 +1,5 @@
 import * as CLIConstants from './constants/CLI';
+import * as GitConstants from './constants/Git';
 import * as CLI from './utilities/cli';
 import * as Git from './utilities/git';
 import * as Log from './utilities/logger';
@@ -33,15 +34,33 @@ async function run() {
     }
   }
 
-  const { selectedBranches, shouldContinue } = await CLI.promptBranches();
+  let nameOfBranch = branchName;
+
+  if (useExisiting) {
+    const {
+      error: getBranchNameError,
+      value: getBranchNameValue,
+    } = await Git.getBranchName();
+
+    if (getBranchNameError) {
+      Log.danger(getBranchNameError);
+      process.exit();
+    }
+
+    nameOfBranch = getBranchNameValue;
+  }
+
+  const { selectedBranches, shouldContinue } = await CLI.promptBranches(
+    nameOfBranch,
+  );
 
   if (selectedBranches.length === 0 && !shouldContinue) {
-    Log.log(CLIConstants.GOODBYE);
+    Log.info(CLIConstants.GOODBYE);
     process.exit();
   }
 
   if (selectedBranches.length > 0) {
-    Log.log(CLIConstants.BEGIN_MERGE);
+    Log.info(CLIConstants.BEGIN_MERGE);
 
     const {
       error: errorMerges,
@@ -70,7 +89,7 @@ async function run() {
     process.exit();
   }
 
-  Log.log(CLIConstants.SETTING_NEXT_NPM_VERSION);
+  Log.info(CLIConstants.SETTING_NEXT_NPM_VERSION);
 
   const { error: nextVersionError } = await NPM.setNextVersion(nextVersion);
   if (nextVersionError) {
@@ -79,15 +98,15 @@ async function run() {
     process.exit();
   }
 
-  Log.log(CLIConstants.PUSHING_GIT_TAGS);
+  Log.info(CLIConstants.PUSHING_GIT_TAGS);
 
-  const { error: pushTagsError } = await Git.pushFollowTags();
+  const { error: pushTagsError } = await Git.pushFollowTags(nameOfBranch);
   if (pushTagsError) {
     Log.danger(pushTagsError);
     process.exit();
   }
 
-  Log.log(CLIConstants.CHECKOUT_PREPROD_BRANCH);
+  Log.info(CLIConstants.CHECKOUT_PREPROD_BRANCH);
 
   const { error: checkoutPreprodError } = await Git.checkoutBranch('preprod');
   if (checkoutPreprodError) {
@@ -95,24 +114,7 @@ async function run() {
     process.exit();
   }
 
-  // branchName could be undefined if a new branch wasn't created previously
-  let nameOfBranch = branchName;
-
-  if (!nameOfBranch) {
-    const {
-      error: getBranchNameError,
-      value: getBranchNameValue,
-    } = await Git.getBranchName();
-
-    if (getBranchNameError) {
-      Log.danger(getBranchNameError);
-      process.exit();
-    }
-
-    nameOfBranch = getBranchNameValue;
-  }
-
-  Log.log(CLIConstants.MERGE_BRANCH_INTO_PREPROD);
+  Log.info(CLIConstants.MERGE_BRANCH_INTO_PREPROD);
 
   const { error: mergeBranchError } = await Git.mergeBranch(nameOfBranch);
   if (mergeBranchError) {
@@ -120,8 +122,10 @@ async function run() {
     process.exit();
   }
 
-  Log.log(CLIConstants.PUSHING_PREPROD_BRANCH);
-  const { error: pushPreprodBranchError } = await Git.push();
+  Log.info(CLIConstants.PUSHING_PREPROD_BRANCH);
+  const { error: pushPreprodBranchError } = await Git.push(
+    GitConstants.PREPROD_BRANCH,
+  );
   if (pushPreprodBranchError) {
     Log.danger(pushPreprodBranchError);
   }
@@ -137,5 +141,6 @@ async function run() {
   }
 
   const githubRelaseUrl = Util.generateReleaseURL(getRemoteValue, nextVersion);
-  Log.success('Edit the release notes:', githubRelaseUrl);
+  Log.success('Edit the release notes here:');
+  Log.info(githubRelaseUrl);
 }
