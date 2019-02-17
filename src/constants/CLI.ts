@@ -6,7 +6,8 @@ export const GOODBYE = 'Goodbye  👋 ️';
 export const BEGIN_MERGE = '🔗  Beginning merge process';
 
 export const EXIT_AFTER_MERGE_FAIL =
-  '🚫  It seems a merge failed. The release process will terminate to allow you to resolve the issue.';
+  // tslint:disable-next-line: max-line-length
+  '🚫  It seems a merge failed. The release process will terminate to allow you to resolve the issue. Re-run once resolved.';
 
 export const MUST_SELECT_NEXT_VERSION =
   '🚫  You must select the next release version.';
@@ -16,7 +17,7 @@ export const UNABLE_TO_SET_NPM_VERSION =
 
 export const SETTING_NEXT_NPM_VERSION = '🔧  Setting the next NPM version';
 
-export const PUSHING_GIT_TAGS = '🏷  Pusing git tags';
+export const PUSHING_GIT_TAGS = '🏷   Pushing git tags';
 
 export const CHECKOUT_PREPROD_BRANCH = '👟  Switching to the preprod branch';
 
