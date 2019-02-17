@@ -2,12 +2,13 @@
   "name": "release-automation",
   "version": "0.1.2",
   "description": "An opinionated CLI for release automation",
-  "main": "lib/index.js",
+  "main": "bin/index.js",
   "bin": {
-    "release-automation": "./lib/index.js"
+    "release-automation": "./bin/index.js"
   },
   "files": [
-    "lib/**/*"
+    "lib/**/*",
+    "bin/**/*"
   ],
   "engines": {
     "node": ">=9.11.2"
