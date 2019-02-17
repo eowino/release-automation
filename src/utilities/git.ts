@@ -144,7 +144,7 @@ export async function mergeBranches(
 }
 
 export async function push(
-  args: ReadonlyArray<string>,
+  args?: ReadonlyArray<string>,
 ): Promise<IResponseString> {
   const git = spawn('git', ['push', ...args]);
 
