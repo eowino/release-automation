@@ -1,6 +1,6 @@
 {
   "name": "release-automation",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An opinionated CLI for release automation",
   "main": "lib/index.js",
   "files": [
@@ -27,10 +27,12 @@
     "@types/inquirer": "0.0.43",
     "@types/node": "^10.12.24",
     "@types/semver": "^5.5.0",
-    "chalk": "^2.4.2",
-    "inquirer": "^6.2.2",
-    "semver": "^5.6.0",
     "tslint": "^5.12.1",
     "typescript": "^3.3.3"
+  },
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "inquirer": "^6.2.2",
+    "semver": "^5.6.0"
   }
 }
