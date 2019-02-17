@@ -1,18 +1,22 @@
 {
   "name": "release-automation",
-  "version": "0.0.0",
-  "description": "A CLI for release automation",
-  "main": "index.js",
+  "version": "0.1.0",
+  "description": "An opinionated CLI for release automation",
+  "main": "lib/index.js",
+  "files": [
+    "lib/**/*"
+  ],
   "engines": {
     "node": ">=9.11.2"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf ./lib && tsc",
     "start": "tsc -w",
     "tslint": "tslint -c tslint.json -p tsconfig.json"
   },
   "keywords": [
     "github",
+    "release",
     "release-automation",
     "semver"
   ],
