@@ -3,6 +3,7 @@ import * as CLI from './utilities/cli';
 import * as Git from './utilities/git';
 import * as Log from './utilities/logger';
 import * as NPM from './utilities/npm';
+import * as Util from './utilities/utilities';
 
 run();
 
@@ -126,4 +127,15 @@ async function run() {
   }
 
   Log.success(CLIConstants.RELEASE_PROCESS_FINISHED);
+
+  const {
+    error: getRemoteError,
+    value: getRemoteValue,
+  } = await Git.getRemote();
+  if (getRemoteError) {
+    process.exit();
+  }
+
+  const githubRelaseUrl = Util.generateReleaseURL(getRemoteValue, nextVersion);
+  Log.success('Edit the release notes:', githubRelaseUrl);
 }
