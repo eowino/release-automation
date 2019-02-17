@@ -207,3 +207,22 @@ export async function getBranchName(): Promise<IResponseString> {
 
   return promise;
 }
+
+export async function getRemote(): Promise<IResponseString> {
+  const git = spawn('git', ['config', '--get', 'remote.origin.url']);
+
+  const promise: Promise<IResponseString> = new Promise(res => {
+    git.stdout.on('data', (data: Buffer) => {
+      res({
+        value: bufferToString(data),
+      });
+    });
+    git.stderr.on('data', (data: Buffer) => {
+      res({
+        error: bufferToString(data),
+      });
+    });
+  });
+
+  return promise;
+}
