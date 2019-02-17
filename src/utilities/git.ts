@@ -188,3 +188,22 @@ export async function checkoutBranch(
 
   return promise;
 }
+
+export async function getBranchName(): Promise<IResponseString> {
+  const git = spawn('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
+
+  const promise: Promise<IResponseString> = new Promise(res => {
+    git.stdout.on('data', (data: Buffer) => {
+      res({
+        value: bufferToString(data),
+      });
+    });
+    git.stderr.on('data', (data: Buffer) => {
+      res({
+        error: bufferToString(data),
+      });
+    });
+  });
+
+  return promise;
+}
