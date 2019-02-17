@@ -142,3 +142,49 @@ export async function mergeBranches(
     value: succesfulMerges,
   });
 }
+
+export async function push(
+  args: ReadonlyArray<string>,
+): Promise<IResponseString> {
+  const git = spawn('git', ['push', ...args]);
+
+  const promise: Promise<IResponseString> = new Promise(res => {
+    git.stdout.on('data', (data: Buffer) => {
+      res({
+        value: bufferToString(data),
+      });
+    });
+    git.stderr.on('data', (data: Buffer) => {
+      res({
+        error: bufferToString(data),
+      });
+    });
+  });
+
+  return promise;
+}
+
+export async function pushFollowTags(): Promise<IResponseString> {
+  return await push(['--follow-tags']);
+}
+
+export async function checkoutBranch(
+  branchName: string,
+): Promise<IResponseString> {
+  const git = spawn('git', ['checkout', branchName]);
+
+  const promise: Promise<IResponseString> = new Promise(res => {
+    git.stdout.on('data', (data: Buffer) => {
+      res({
+        value: bufferToString(data),
+      });
+    });
+    git.stderr.on('data', (data: Buffer) => {
+      res({
+        error: bufferToString(data),
+      });
+    });
+  });
+
+  return promise;
+}
