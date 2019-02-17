@@ -7,7 +7,7 @@ export const BEGIN_MERGE = '🔗  Beginning merge process';
 
 export const EXIT_AFTER_MERGE_FAIL =
   // tslint:disable-next-line: max-line-length
-  '🚫  It seems a merge failed. The release process will terminate to allow you to resolve the issue. Re-run once resolved.';
+  '🚫  It seems a merge failed. The release process will terminate to allow you to resolve the issue. Run agin once resolved.';
 
 export const MUST_SELECT_NEXT_VERSION =
   '🚫  You must select the next release version.';
