@@ -3,6 +3,7 @@ import inquirer from 'inquirer';
 import * as GitConstants from '../constants/Git';
 import * as Prompt from '../constants/Prompt';
 import * as CLITypes from '../types/CLI';
+import * as NPM from '../utilities/npm';
 import * as Util from '../utilities/utilities';
 import * as Git from './git';
 
@@ -77,10 +78,10 @@ export async function promptForNewBranchName(): Promise<
 }
 
 export async function promptForNextReleaseVersion(
-  currentVersion: string,
   branchNames: string[],
 ): Promise<string> {
   try {
+    const currentVersion = NPM.getCurrentNpmVersion();
     const suggestedVersion = Util.suggestNextReleaseVersion(
       currentVersion,
       branchNames,

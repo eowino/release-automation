@@ -2,6 +2,7 @@ import * as CLIConstants from './constants/CLI';
 import * as CLI from './utilities/cli';
 import * as Git from './utilities/git';
 import * as Log from './utilities/logger';
+import * as NPM from './utilities/npm';
 
 run();
 
@@ -19,12 +20,15 @@ async function run() {
   } = await CLI.promptForNewBranchName();
 
   if (!useExisiting) {
-    const { value, error } = await Git.createBranch(branchName, baseBranch);
-    if (error) {
-      Log.danger(error);
+    const {
+      value: createBranchValue,
+      error: createBranchError,
+    } = await Git.createBranch(branchName, baseBranch);
+    if (createBranchError) {
+      Log.danger(createBranchError);
       process.exit();
-    } else if (value) {
-      Log.success(value);
+    } else if (createBranchValue) {
+      Log.success(createBranchValue);
     }
   }
 
@@ -58,4 +62,21 @@ async function run() {
       process.exit();
     }
   }
+
+  const nextVersion = await CLI.promptForNextReleaseVersion(selectedBranches);
+  if (!nextVersion) {
+    Log.danger(CLIConstants.MUST_SELECT_NEXT_VERSION);
+    process.exit();
+  }
+
+  Log.log(CLIConstants.SETTING_NEXT_NPM_VERSION);
+
+  const { error: nextVersionError } = await NPM.setNextVersion(nextVersion);
+  if (nextVersionError) {
+    Log.danger(CLIConstants.UNABLE_TO_SET_NPM_VERSION);
+    Log.danger(nextVersionError);
+    process.exit();
+  }
+
+  Log.log(CLIConstants.PUSHING_GIT_TAGS);
 }
