@@ -1,9 +1,10 @@
 import inquirer from 'inquirer';
 
-import * as Git from '../constants/Git';
+import * as GitConstants from '../constants/Git';
 import * as Prompt from '../constants/Prompt';
 import * as CLITypes from '../types/CLI';
-import * as git from './git';
+import * as Util from '../utilities/utilities';
+import * as Git from './git';
 
 async function continueIfBranchesNotChosen(): Promise<boolean> {
   try {
@@ -24,7 +25,7 @@ async function continueIfBranchesNotChosen(): Promise<boolean> {
 export async function promptBranches(): Promise<CLITypes.IPromptBranches> {
   try {
     let shouldContinue = true;
-    const branches = await git.getAllBranches();
+    const branches = await Git.getAllBranches();
     const {
       selectedBranches,
     }: { selectedBranches: string[] } = await inquirer.prompt({
@@ -59,7 +60,7 @@ export async function promptForNewBranchName(): Promise<
     });
 
     const { baseBranch }: { baseBranch: string } = await inquirer.prompt({
-      default: Git.DEFAULT_BASE_BRANCH,
+      default: GitConstants.DEFAULT_BASE_BRANCH,
       message: Prompt.BASE_BRANCH,
       name: 'baseBranch',
       type: 'input',
@@ -75,9 +76,17 @@ export async function promptForNewBranchName(): Promise<
   }
 }
 
-async function promptForNextReleaseVersion(): Promise<string> {
+export async function promptForNextReleaseVersion(
+  currentVersion: string,
+  branchNames: string[],
+): Promise<string> {
   try {
+    const suggestedVersion = Util.suggestNextReleaseVersion(
+      currentVersion,
+      branchNames,
+    );
     const { nextVersion }: { nextVersion: string } = await inquirer.prompt({
+      default: suggestedVersion,
       message: Prompt.NEXT_RELEASE_VERSION,
       name: 'nextVersion',
       type: 'input',
