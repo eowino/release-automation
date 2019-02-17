@@ -32,14 +32,14 @@ export async function promptBranches(
   try {
     let shouldContinue = true;
     const branches = await Git.getAllBranches();
-    const withoutCurrentBrand = branches.filter(
+    const withoutCurrentBranch = branches.filter(
       branch => branch !== currentBranch,
     );
 
     const {
       selectedBranches,
     }: { selectedBranches: string[] } = await inquirer.prompt({
-      choices: withoutCurrentBrand,
+      choices: withoutCurrentBranch,
       message: Prompt.CHOOSE_BRANCHES,
       name: 'selectedBranches',
       type: 'checkbox',
