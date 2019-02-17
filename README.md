@@ -1,10 +1,24 @@
 # release-automation
 
+[![npm version](https://badge.fury.io/js/release-automation.svg)](https://npmjs.org/package/release-automation 'View this project on npm')
+
 ## What
 
 An opinionated CLI for release automation
 
-# Steps involved
+## Prerequisites
+
+This CLI requires Node 9.11.2 or higher.
+
+## Installation
+
+**BEFORE YOU INSTALL:** please read the [prerequisites](#prerequisites)
+
+```bash
+npm install -g release-automation
+```
+
+## Steps
 
 1. Prompts you for a branch name. If you don't provide one, the current branch will be used.
    If you do provide a branch name, you will be asked which branch to base it on. The master branch
