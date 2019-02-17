@@ -99,9 +99,17 @@ export async function mergeBranch(
 
   const promise: Promise<IResponseString> = new Promise(res => {
     git.stdout.on('data', (data: Buffer) => {
-      res({
-        value: bufferToString(data),
-      });
+      const output = bufferToString(data);
+
+      if (output.includes('CONFLICT')) {
+        res({
+          error: output,
+        });
+      } else {
+        res({
+          value: output,
+        });
+      }
     });
     git.stderr.on('data', (data: Buffer) => {
       res({
@@ -124,13 +132,14 @@ function mergeMessage(branchName: string, response: string) {
 export async function mergeBranches(
   branches: string[],
 ): Promise<IResponseStringList> {
-  const failedMerges: string[] = [];
   const succesfulMerges: string[] = [];
 
   for (const branch of branches) {
     const response = await mergeBranch(branch);
     if (response.error) {
-      failedMerges.push(mergeMessage(branch, response.error as string));
+      return Promise.resolve({
+        error: response.error,
+      });
     }
     if (response.value) {
       succesfulMerges.push(mergeMessage(branch, response.value as string));
@@ -138,7 +147,6 @@ export async function mergeBranches(
   }
 
   return Promise.resolve<IResponseStringList>({
-    error: failedMerges,
     value: succesfulMerges,
   });
 }

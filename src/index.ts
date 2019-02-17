@@ -63,8 +63,8 @@ async function run() {
     Log.info(CLIConstants.BEGIN_MERGE);
 
     const {
-      error: errorMerges,
-      value: successfulMerges,
+      error: errorMerge,
+      value: successfulMerges = [],
     } = await Git.mergeBranches(selectedBranches);
 
     if (successfulMerges.length > 0) {
@@ -73,12 +73,9 @@ async function run() {
       });
     }
 
-    if (errorMerges.length > 0) {
-      (errorMerges as string[]).forEach(errorMessage => {
-        Log.danger(errorMessage);
-      });
-
+    if (errorMerge) {
       Log.danger(CLIConstants.EXIT_AFTER_MERGE_FAIL);
+      Log.danger(errorMerge);
       process.exit();
     }
   }
