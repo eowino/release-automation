@@ -6,3 +6,8 @@ export interface IResponse<T> {
 
 export interface IResponseString extends IResponse<string> {}
 export interface IResponseStringList extends IResponse<string[]> {}
+
+export interface INextRelease {
+  feat: number;
+  fix: number;
+}

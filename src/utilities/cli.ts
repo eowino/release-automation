@@ -74,3 +74,17 @@ export async function promptForNewBranchName(): Promise<
     return null;
   }
 }
+
+async function promptForNextReleaseVersion(): Promise<string> {
+  try {
+    const { nextVersion }: { nextVersion: string } = await inquirer.prompt({
+      message: Prompt.NEXT_RELEASE_VERSION,
+      name: 'nextVersion',
+      type: 'input',
+    });
+
+    return nextVersion;
+  } catch (e) {
+    return null;
+  }
+}

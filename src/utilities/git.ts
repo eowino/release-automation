@@ -65,7 +65,7 @@ export async function createBranch(
 
   const git = spawn('git', ['checkout', '-b', newBranchName, baseBranch]);
 
-  const promise: Promise<IResponseString> = new Promise((res, rej) => {
+  const promise: Promise<IResponseString> = new Promise(res => {
     git.stdout.on('data', (data: Buffer) => {
       res({
         value: bufferToString(data),
