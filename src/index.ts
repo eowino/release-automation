@@ -6,9 +6,7 @@ import * as Log from './utilities/logger';
 import * as NPM from './utilities/npm';
 import * as Util from './utilities/utilities';
 
-run();
-
-async function run() {
+export async function run() {
   const isGitRepo = await Git.isGitRepository();
   if (!isGitRepo) {
     Log.danger(CLIConstants.MUST_BE_GIT_REPO);
