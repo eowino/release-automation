@@ -1,4 +1,5 @@
 import { spawn } from 'child_process';
+import path from 'path';
 
 import { IResponseString } from '../types/Utilities';
 import { bufferToString } from './utilities';
@@ -22,4 +23,10 @@ export async function setNextVersion(
   });
 
   return promise;
+}
+
+export function getCurrentNpmVersion(): string {
+  const pkgPath = path.join(process.cwd(), 'package.json');
+  const { version } = require(pkgPath);
+  return version;
 }
