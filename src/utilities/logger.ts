@@ -2,18 +2,22 @@ import chalk from 'chalk';
 
 export const log = console.log;
 
+export function info(...values: any) {
+  log('\n', ...values);
+}
+
 export function success(...values: any) {
-  log(chalk.green(values));
+  log('\n', chalk.green(values));
 }
 
 export function danger(...values: any) {
-  log(chalk.red(values));
+  log('\n', chalk.red(values));
 }
 
 export function bold(...values: any) {
-  log(chalk.bold(values));
+  log('\n', chalk.bold(values));
 }
 
 export function underline(...values: any) {
-  log(chalk.underline(values));
+  log('\n', chalk.underline(values));
 }
