@@ -99,9 +99,17 @@ export async function mergeBranch(
 
   const promise: Promise<IResponseString> = new Promise(res => {
     git.stdout.on('data', (data: Buffer) => {
-      res({
-        value: bufferToString(data),
-      });
+      const output = bufferToString(data);
+
+      if (output.includes('CONFLICT')) {
+        res({
+          error: output,
+        });
+      } else {
+        res({
+          value: output,
+        });
+      }
     });
     git.stderr.on('data', (data: Buffer) => {
       res({
@@ -124,13 +132,14 @@ function mergeMessage(branchName: string, response: string) {
 export async function mergeBranches(
   branches: string[],
 ): Promise<IResponseStringList> {
-  const failedMerges: string[] = [];
   const succesfulMerges: string[] = [];
 
   for (const branch of branches) {
     const response = await mergeBranch(branch);
     if (response.error) {
-      failedMerges.push(mergeMessage(branch, response.error as string));
+      return Promise.resolve({
+        error: response.error,
+      });
     }
     if (response.value) {
       succesfulMerges.push(mergeMessage(branch, response.value as string));
@@ -138,15 +147,21 @@ export async function mergeBranches(
   }
 
   return Promise.resolve<IResponseStringList>({
-    error: failedMerges,
     value: succesfulMerges,
   });
 }
 
 export async function push(
-  args?: ReadonlyArray<string>,
+  branchName: string,
+  args: ReadonlyArray<string> = [],
 ): Promise<IResponseString> {
-  const git = spawn('git', ['push', ...args]);
+  const git = spawn('git', [
+    'push',
+    '--set-upstream',
+    'origin',
+    branchName,
+    ...args,
+  ]);
 
   const promise: Promise<IResponseString> = new Promise(res => {
     git.stdout.on('data', (data: Buffer) => {
@@ -155,17 +170,31 @@ export async function push(
       });
     });
     git.stderr.on('data', (data: Buffer) => {
-      res({
-        error: bufferToString(data),
-      });
+      const output = bufferToString(data);
+      // sometimes reports a false negative
+      if (
+        output.includes('To github.com') ||
+        output.includes('Everything up-to-date') ||
+        output.includes('Create a pull request for')
+      ) {
+        res({
+          value: bufferToString(data),
+        });
+      } else {
+        res({
+          error: bufferToString(data),
+        });
+      }
     });
   });
 
   return promise;
 }
 
-export async function pushFollowTags(): Promise<IResponseString> {
-  return await push(['--follow-tags']);
+export async function pushFollowTags(
+  branchName: string,
+): Promise<IResponseString> {
+  return await push(branchName, ['--follow-tags']);
 }
 
 export async function checkoutBranch(
@@ -180,9 +209,18 @@ export async function checkoutBranch(
       });
     });
     git.stderr.on('data', (data: Buffer) => {
-      res({
-        error: bufferToString(data),
-      });
+      const output = bufferToString(data);
+      // sometimes reports a false negative
+
+      if (output.includes('Switched to branch')) {
+        res({
+          value: bufferToString(data),
+        });
+      } else {
+        res({
+          error: bufferToString(data),
+        });
+      }
     });
   });
 
