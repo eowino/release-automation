@@ -144,7 +144,7 @@ export async function mergeBranches(
 }
 
 export async function push(
-  args: ReadonlyArray<string>,
+  args?: ReadonlyArray<string>,
 ): Promise<IResponseString> {
   const git = spawn('git', ['push', ...args]);
 
@@ -172,6 +172,44 @@ export async function checkoutBranch(
   branchName: string,
 ): Promise<IResponseString> {
   const git = spawn('git', ['checkout', branchName]);
+
+  const promise: Promise<IResponseString> = new Promise(res => {
+    git.stdout.on('data', (data: Buffer) => {
+      res({
+        value: bufferToString(data),
+      });
+    });
+    git.stderr.on('data', (data: Buffer) => {
+      res({
+        error: bufferToString(data),
+      });
+    });
+  });
+
+  return promise;
+}
+
+export async function getBranchName(): Promise<IResponseString> {
+  const git = spawn('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
+
+  const promise: Promise<IResponseString> = new Promise(res => {
+    git.stdout.on('data', (data: Buffer) => {
+      res({
+        value: bufferToString(data),
+      });
+    });
+    git.stderr.on('data', (data: Buffer) => {
+      res({
+        error: bufferToString(data),
+      });
+    });
+  });
+
+  return promise;
+}
+
+export async function getRemote(): Promise<IResponseString> {
+  const git = spawn('git', ['config', '--get', 'remote.origin.url']);
 
   const promise: Promise<IResponseString> = new Promise(res => {
     git.stdout.on('data', (data: Buffer) => {

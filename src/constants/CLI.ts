@@ -17,3 +17,11 @@ export const UNABLE_TO_SET_NPM_VERSION =
 export const SETTING_NEXT_NPM_VERSION = '🔧 Setting the next NPM version';
 
 export const PUSHING_GIT_TAGS = '🏷 Pusing git tags';
+
+export const CHECKOUT_PREPROD_BRANCH = '👟 Switching to the preprod branch';
+
+export const MERGE_BRANCH_INTO_PREPROD = '🔗 Merging branch into preprod';
+
+export const PUSHING_PREPROD_BRANCH = '➫ Pushing preprod branch to remote';
+
+export const RELEASE_PROCESS_FINISHED = '🏁 Release process finished 🎉';

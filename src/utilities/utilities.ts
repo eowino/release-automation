@@ -44,3 +44,15 @@ function getIncrementedVersion(
   const { minor, patch, major } = coerce(currentVersion);
   return `${major}.${minor + nextRelease.feat}.${patch + nextRelease.fix}`;
 }
+
+export function generateReleaseURL(
+  gitRemoteOriginURL: string,
+  releaseVersion: string,
+): string {
+  const delimeter = gitRemoteOriginURL.startsWith('git') ? ':' : '/';
+  const [_, ownerAndRepo] = gitRemoteOriginURL.split(`github.com${delimeter}`);
+  const [owner, repoWithGit] = ownerAndRepo.split('/');
+  const repo = repoWithGit.substring(0, repoWithGit.length - 4);
+
+  return `https://github.com/${owner}/${repo}/releases/new?tag=v${releaseVersion}`;
+}

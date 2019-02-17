@@ -3,6 +3,7 @@ import * as CLI from './utilities/cli';
 import * as Git from './utilities/git';
 import * as Log from './utilities/logger';
 import * as NPM from './utilities/npm';
+import * as Util from './utilities/utilities';
 
 run();
 
@@ -79,4 +80,62 @@ async function run() {
   }
 
   Log.log(CLIConstants.PUSHING_GIT_TAGS);
+
+  const { error: pushTagsError } = await Git.pushFollowTags();
+  if (pushTagsError) {
+    Log.danger(pushTagsError);
+    process.exit();
+  }
+
+  Log.log(CLIConstants.CHECKOUT_PREPROD_BRANCH);
+
+  const { error: checkoutPreprodError } = await Git.checkoutBranch('preprod');
+  if (checkoutPreprodError) {
+    Log.danger(checkoutPreprodError);
+    process.exit();
+  }
+
+  // branchName could be undefined if a new branch wasn't created previously
+  let nameOfBranch = branchName;
+
+  if (!nameOfBranch) {
+    const {
+      error: getBranchNameError,
+      value: getBranchNameValue,
+    } = await Git.getBranchName();
+
+    if (getBranchNameError) {
+      Log.danger(getBranchNameError);
+      process.exit();
+    }
+
+    nameOfBranch = getBranchNameValue;
+  }
+
+  Log.log(CLIConstants.MERGE_BRANCH_INTO_PREPROD);
+
+  const { error: mergeBranchError } = await Git.mergeBranch(nameOfBranch);
+  if (mergeBranchError) {
+    Log.danger(mergeBranchError);
+    process.exit();
+  }
+
+  Log.log(CLIConstants.PUSHING_PREPROD_BRANCH);
+  const { error: pushPreprodBranchError } = await Git.push();
+  if (pushPreprodBranchError) {
+    Log.danger(pushPreprodBranchError);
+  }
+
+  Log.success(CLIConstants.RELEASE_PROCESS_FINISHED);
+
+  const {
+    error: getRemoteError,
+    value: getRemoteValue,
+  } = await Git.getRemote();
+  if (getRemoteError) {
+    process.exit();
+  }
+
+  const githubRelaseUrl = Util.generateReleaseURL(getRemoteValue, nextVersion);
+  Log.success('Edit the release notes:', githubRelaseUrl);
 }
