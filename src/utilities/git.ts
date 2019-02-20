@@ -1,15 +1,19 @@
 import { spawn } from 'child_process';
 
 import * as GitConstants from '../constants/Git';
-import { IResponseString, IResponseStringList } from '../types/Utilities';
+import {
+  IResponseString,
+  IResponseStringList,
+  IResponseBoolean,
+} from '../types/Utilities';
 import { bufferToString } from './utilities';
 
 export async function getAllBranches(): Promise<string[]> {
-  const git = spawn('git', ['branch', '-a']);
+  const git = spawn('git', ['branch', '-r']);
 
   const promise: Promise<string[]> = new Promise((res, rej) => {
     git.stdout.on('data', (data: Buffer) => {
-      const branches = getListOfBranches(bufferToString(data));
+      const branches = formatBranches(bufferToString(data));
       res(branches);
     });
     git.stderr.on('data', (data: Buffer) => {
@@ -18,6 +22,19 @@ export async function getAllBranches(): Promise<string[]> {
   });
 
   return promise;
+}
+
+function formatBranches(branches: string) {
+  return removeOriginFromBranchName(getListOfBranches(branches));
+}
+
+function removeOriginFromBranchName(branches: string[]) {
+  const ORIGIN = 'origin/';
+  const ORIGIN_MASTER = 'origin/HEAD -> origin/master';
+
+  return branches
+    .filter(branchName => !branchName.includes(ORIGIN_MASTER))
+    .map(branchName => branchName.substring(ORIGIN.length));
 }
 
 function getListOfBranches(branches: string): string[] {
@@ -47,6 +64,33 @@ export async function isGitRepository(): Promise<boolean> {
 
     git.stderr.on('data', () => {
       res(false);
+    });
+  });
+
+  return promise;
+}
+
+export async function fetchAll(): Promise<IResponseBoolean> {
+  const git = spawn('git', ['fetch', '--all']);
+
+  const promise: Promise<IResponseBoolean> = new Promise(res => {
+    git.stdout.on('data', (data: Buffer) => {
+      res({
+        value: true,
+      });
+    });
+    git.stderr.on('data', (data: Buffer) => {
+      const output = bufferToString(data);
+
+      if (output.length === 0 || output.includes('Fetching origin')) {
+        res({
+          value: true,
+        });
+      } else {
+        res({
+          error: bufferToString(data),
+        });
+      }
     });
   });
 

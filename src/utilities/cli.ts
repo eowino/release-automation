@@ -31,6 +31,12 @@ export async function promptBranches(
 ): Promise<CLITypes.IPromptBranches> {
   try {
     let shouldContinue = true;
+    const { error } = await Git.fetchAll();
+
+    if (error) {
+      return null;
+    }
+
     const branches = await Git.getAllBranches();
     const withoutCurrentBranch = branches.filter(
       branch => branch !== currentBranch,
