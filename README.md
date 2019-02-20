@@ -18,6 +18,8 @@ This CLI requires Node 9.11.2 or higher.
 npm install -g release-automation
 ```
 
+## Usage
+
 Then simply run the following in your `git` instantiated directory
 
 ```bash
