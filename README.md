@@ -18,6 +18,12 @@ This CLI requires Node 9.11.2 or higher.
 npm install -g release-automation
 ```
 
+Then simply run the following in your `git` instantiated directory
+
+```bash
+release-automation
+```
+
 ## Steps
 
 1. Prompts you for a branch name. If you don't provide one, the current branch will be used.

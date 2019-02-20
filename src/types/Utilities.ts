@@ -5,6 +5,7 @@ export interface IResponse<T> {
 }
 
 export interface IResponseString extends IResponse<string> {}
+export interface IResponseBoolean extends IResponse<boolean> {}
 export interface IResponseStringList extends IResponse<string[]> {}
 
 export interface INextRelease {
