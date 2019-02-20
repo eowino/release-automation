@@ -6,6 +6,28 @@ import * as Log from './utilities/logger';
 import * as NPM from './utilities/npm';
 import * as Util from './utilities/utilities';
 
+export async function run() {
+  const isGitRepo = await Git.isGitRepository();
+  if (!isGitRepo) {
+    Log.danger(CLIConstants.MUST_BE_GIT_REPO);
+    process.exit();
+  }
+
+  const { branchName, useExisiting } = await promptForNewBranchName();
+  const nameOfBranch = await setBranchName(branchName, useExisiting);
+  const selectedBranches = await getBranchesToMerge(nameOfBranch);
+  const nextVersion = await promptAndSetNextReleaseVersion(selectedBranches);
+
+  await pushGitTags(nameOfBranch);
+  await gitCheckoutPreprodBranch();
+  await mergeBranchIntoPreprodBranch(nameOfBranch);
+  await pushPreprodBranch();
+
+  Log.success(CLIConstants.RELEASE_PROCESS_FINISHED);
+
+  await generateReleaseURL(nextVersion);
+}
+
 async function promptForNewBranchName() {
   const {
     baseBranch,
@@ -157,26 +179,4 @@ async function generateReleaseURL(nextVersion: string) {
   const githubRelaseUrl = Util.generateReleaseURL(getRemoteValue, nextVersion);
   Log.success('Edit the release notes here:');
   Log.info(githubRelaseUrl);
-}
-
-export async function run() {
-  const isGitRepo = await Git.isGitRepository();
-  if (!isGitRepo) {
-    Log.danger(CLIConstants.MUST_BE_GIT_REPO);
-    process.exit();
-  }
-
-  const { branchName, useExisiting } = await promptForNewBranchName();
-  const nameOfBranch = await setBranchName(branchName, useExisiting);
-  const selectedBranches = await getBranchesToMerge(nameOfBranch);
-  const nextVersion = await promptAndSetNextReleaseVersion(selectedBranches);
-
-  await pushGitTags(nameOfBranch);
-  await gitCheckoutPreprodBranch();
-  await mergeBranchIntoPreprodBranch(nameOfBranch);
-  await pushPreprodBranch();
-
-  Log.success(CLIConstants.RELEASE_PROCESS_FINISHED);
-
-  await generateReleaseURL(nextVersion);
 }
