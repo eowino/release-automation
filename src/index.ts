@@ -6,13 +6,7 @@ import * as Log from './utilities/logger';
 import * as NPM from './utilities/npm';
 import * as Util from './utilities/utilities';
 
-export async function run() {
-  const isGitRepo = await Git.isGitRepository();
-  if (!isGitRepo) {
-    Log.danger(CLIConstants.MUST_BE_GIT_REPO);
-    process.exit();
-  }
-
+async function promptForNewBranchName() {
   const {
     baseBranch,
     branchName,
@@ -32,7 +26,14 @@ export async function run() {
     }
   }
 
-  let nameOfBranch = branchName;
+  return {
+    branchName,
+    useExisiting,
+  };
+}
+
+async function setBranchName(branchName: string, useExisiting: boolean) {
+  let name = branchName;
 
   if (useExisiting) {
     const {
@@ -45,11 +46,15 @@ export async function run() {
       process.exit();
     }
 
-    nameOfBranch = getBranchNameValue;
+    name = getBranchNameValue;
   }
 
+  return Promise.resolve(name);
+}
+
+async function getBranchesToMerge(branchName: string) {
   const { selectedBranches, shouldContinue } = await CLI.promptBranches(
-    nameOfBranch,
+    branchName,
   );
 
   if (selectedBranches.length === 0 && !shouldContinue) {
@@ -77,7 +82,11 @@ export async function run() {
       process.exit();
     }
   }
+  console.log('finish in here');
+  return selectedBranches;
+}
 
+async function promptAndSetNextReleaseVersion(selectedBranches: string[]) {
   const nextVersion = await CLI.promptForNextReleaseVersion(selectedBranches);
   if (!nextVersion) {
     Log.danger(CLIConstants.MUST_SELECT_NEXT_VERSION);
@@ -93,14 +102,20 @@ export async function run() {
     process.exit();
   }
 
+  return nextVersion;
+}
+
+async function pushGitTags(branchName: string) {
   Log.info(CLIConstants.PUSHING_GIT_TAGS);
 
-  const { error: pushTagsError } = await Git.pushFollowTags(nameOfBranch);
+  const { error: pushTagsError } = await Git.pushFollowTags(branchName);
   if (pushTagsError) {
     Log.danger(pushTagsError);
     process.exit();
   }
+}
 
+async function gitCheckoutPreprodBranch() {
   Log.info(CLIConstants.CHECKOUT_PREPROD_BRANCH);
 
   const { error: checkoutPreprodError } = await Git.checkoutBranch('preprod');
@@ -108,15 +123,19 @@ export async function run() {
     Log.danger(checkoutPreprodError);
     process.exit();
   }
+}
 
+async function mergeBranchIntoPreprodBranch(branchName: string) {
   Log.info(CLIConstants.MERGE_BRANCH_INTO_PREPROD);
 
-  const { error: mergeBranchError } = await Git.mergeBranch(nameOfBranch);
+  const { error: mergeBranchError } = await Git.mergeBranch(branchName);
   if (mergeBranchError) {
     Log.danger(mergeBranchError);
     process.exit();
   }
+}
 
+async function pushPreprodBranch() {
   Log.info(CLIConstants.PUSHING_PREPROD_BRANCH);
   const { error: pushPreprodBranchError } = await Git.push(
     GitConstants.PREPROD_BRANCH,
@@ -124,9 +143,9 @@ export async function run() {
   if (pushPreprodBranchError) {
     Log.danger(pushPreprodBranchError);
   }
+}
 
-  Log.success(CLIConstants.RELEASE_PROCESS_FINISHED);
-
+async function generateReleaseURL(nextVersion: string) {
   const {
     error: getRemoteError,
     value: getRemoteValue,
@@ -138,4 +157,26 @@ export async function run() {
   const githubRelaseUrl = Util.generateReleaseURL(getRemoteValue, nextVersion);
   Log.success('Edit the release notes here:');
   Log.info(githubRelaseUrl);
+}
+
+export async function run() {
+  const isGitRepo = await Git.isGitRepository();
+  if (!isGitRepo) {
+    Log.danger(CLIConstants.MUST_BE_GIT_REPO);
+    process.exit();
+  }
+
+  const { branchName, useExisiting } = await promptForNewBranchName();
+  const nameOfBranch = await setBranchName(branchName, useExisiting);
+  const selectedBranches = await getBranchesToMerge(nameOfBranch);
+  const nextVersion = await promptAndSetNextReleaseVersion(selectedBranches);
+
+  await pushGitTags(nameOfBranch);
+  await gitCheckoutPreprodBranch();
+  await mergeBranchIntoPreprodBranch(nameOfBranch);
+  await pushPreprodBranch();
+
+  Log.success(CLIConstants.RELEASE_PROCESS_FINISHED);
+
+  await generateReleaseURL(nextVersion);
 }
