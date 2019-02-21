@@ -121,19 +121,25 @@ async function getBranchesToMerge(branchName: string) {
 async function promptAndSetNextReleaseVersion(selectedBranches: string[]) {
   Log.newLine();
 
-  const nextVersion = await CLI.promptForNextReleaseVersion(selectedBranches);
+  const {
+    nextVersion,
+    suggestedVersion,
+  } = await CLI.promptForNextReleaseVersion(selectedBranches);
   if (!nextVersion) {
     Log.danger(CLIConstants.MUST_SELECT_NEXT_VERSION);
     process.exit();
   }
 
-  Log.info(CLIConstants.SETTING_NEXT_NPM_VERSION);
+  // suggestedVersion is null if unable to read from package.json
+  if (suggestedVersion) {
+    Log.info(CLIConstants.SETTING_NEXT_NPM_VERSION);
 
-  const { error: nextVersionError } = await NPM.setNextVersion(nextVersion);
-  if (nextVersionError) {
-    Log.danger(CLIConstants.UNABLE_TO_SET_NPM_VERSION);
-    Log.danger(nextVersionError);
-    process.exit();
+    const { error: nextVersionError } = await NPM.setNextVersion(nextVersion);
+    if (nextVersionError) {
+      Log.danger(CLIConstants.UNABLE_TO_SET_NPM_VERSION);
+      Log.danger(nextVersionError);
+      process.exit();
+    }
   }
 
   return nextVersion;

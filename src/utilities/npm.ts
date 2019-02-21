@@ -26,7 +26,11 @@ export async function setNextVersion(
 }
 
 export function getCurrentNpmVersion(): string {
-  const pkgPath = path.join(process.cwd(), 'package.json');
-  const { version } = require(pkgPath);
-  return version;
+  try {
+    const pkgPath = path.join(process.cwd(), 'package.json');
+    const { version } = require(pkgPath);
+    return version;
+  } catch (_) {
+    return null;
+  }
 }
