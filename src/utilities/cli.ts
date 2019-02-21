@@ -105,7 +105,7 @@ export async function promptForNewBranchName(): Promise<
 
 export async function promptForNextReleaseVersion(
   branchNames: string[],
-): Promise<string> {
+): Promise<{ nextVersion: string; suggestedVersion: string }> {
   const currentVersion = NPM.getCurrentNpmVersion();
   const suggestedVersion = Util.suggestNextReleaseVersion(
     currentVersion,
@@ -118,7 +118,10 @@ export async function promptForNextReleaseVersion(
     type: 'input',
   });
 
-  return nextVersion;
+  return {
+    nextVersion,
+    suggestedVersion,
+  };
 }
 
 export async function confirmBranches(branches: string[]): Promise<boolean> {
