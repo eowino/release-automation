@@ -15,9 +15,14 @@ export async function run() {
 
   const { branchName, useExisiting } = await promptForNewBranchName();
   const nameOfBranch = await setBranchName(branchName, useExisiting);
-  const selectedBranches = await getBranchesToMerge(nameOfBranch);
-  const nextVersion = await promptAndSetNextReleaseVersion(selectedBranches);
+  const wishToMerge = await CLI.doYouWishToMerge();
+  let selectedBranches: string[] = [];
 
+  if (wishToMerge) {
+    selectedBranches = await getBranchesToMerge(nameOfBranch);
+  }
+
+  const nextVersion = await promptAndSetNextReleaseVersion(selectedBranches);
   await pushGitTags(nameOfBranch);
   await gitCheckoutPreprodBranch();
   await mergeBranchIntoPreprodBranch(nameOfBranch);

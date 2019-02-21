@@ -161,3 +161,14 @@ export async function tryFiltersAgain(): Promise<boolean> {
 
   return tryAgain;
 }
+
+export async function doYouWishToMerge(): Promise<boolean> {
+  const { wishToMerge }: { wishToMerge: boolean } = await inquirer.prompt({
+    default: true,
+    message: Prompt.WISH_TO_MERGE,
+    name: 'wishToMerge',
+    type: 'confirm',
+  });
+
+  return wishToMerge;
+}
