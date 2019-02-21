@@ -19,7 +19,7 @@
     "build": "tsc",
     "start": "tsc -w",
     "tslint": "tslint -c tslint.json -p tsconfig.json --fix",
-    "publish": "npm run tslint && npm run build && npm publish",
+    "prepublish": "npm run tslint && npm run build",
     "precommit": "./scripts/pre-commit-check.sh && pretty-quick --staged && npm run tslint",
     "format": "prettier --write src/**/*.{js,md,ts,json}"
   },
