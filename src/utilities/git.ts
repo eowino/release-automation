@@ -2,11 +2,13 @@ import { spawn } from 'child_process';
 
 import * as GitConstants from '../constants/Git';
 import {
+  IResponseBoolean,
   IResponseString,
   IResponseStringList,
-  IResponseBoolean,
 } from '../types/Utilities';
 import { bufferToString } from './utilities';
+
+const ORIGIN = 'origin/';
 
 export async function getAllBranches(): Promise<string[]> {
   const git = spawn('git', ['branch', '-r']);
@@ -29,7 +31,6 @@ function formatBranches(branches: string) {
 }
 
 function removeOriginFromBranchName(branches: string[]) {
-  const ORIGIN = 'origin/';
   const ORIGIN_MASTER = 'origin/HEAD -> origin/master';
 
   return branches
@@ -139,7 +140,7 @@ export async function createBranch(
 export async function mergeBranch(
   branchName: string,
 ): Promise<IResponseString> {
-  const git = spawn('git', ['merge', branchName]);
+  const git = spawn('git', ['merge', ORIGIN + branchName]);
 
   const promise: Promise<IResponseString> = new Promise(res => {
     git.stdout.on('data', (data: Buffer) => {
