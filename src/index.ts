@@ -104,7 +104,6 @@ async function getBranchesToMerge(branchName: string) {
       process.exit();
     }
   }
-  console.log('finish in here');
   return selectedBranches;
 }
 
