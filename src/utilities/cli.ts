@@ -38,10 +38,22 @@ export async function promptBranches(
     branch => branch !== currentBranch,
   );
 
+  let filteredBranches = await getFilteredBranches(withoutCurrentBranch);
+
+  if (filteredBranches.length === 0) {
+    const tryAgain = await tryFiltersAgain();
+
+    if (tryAgain) {
+      await promptBranches(currentBranch);
+    } else {
+      filteredBranches = withoutCurrentBranch;
+    }
+  }
+
   const {
     selectedBranches,
   }: { selectedBranches: string[] } = await inquirer.prompt({
-    choices: withoutCurrentBranch,
+    choices: filteredBranches,
     message: Prompt.CHOOSE_BRANCHES,
     name: 'selectedBranches',
     type: 'checkbox',
@@ -119,4 +131,33 @@ export async function confirmBranches(branches: string[]): Promise<boolean> {
   });
 
   return confirmed;
+}
+
+export async function getFilteredBranches(
+  branches: string[],
+): Promise<string[]> {
+  const { patterns }: { patterns: string } = await inquirer.prompt({
+    default: Prompt.SHOW_ALL_BRANCHES,
+    message: Prompt.FILTER_BRANCHES,
+    name: 'patterns',
+    type: 'input',
+  });
+
+  if (patterns === Prompt.SHOW_ALL_BRANCHES) {
+    return branches;
+  }
+
+  const filters = patterns.split(',');
+  return Util.matchStringsFromPattern(filters, branches);
+}
+
+export async function tryFiltersAgain(): Promise<boolean> {
+  const { tryAgain }: { tryAgain: boolean } = await inquirer.prompt({
+    default: false,
+    message: Prompt.NO_MATCHES_FOUND,
+    name: 'tryAgain',
+    type: 'confirm',
+  });
+
+  return tryAgain;
 }

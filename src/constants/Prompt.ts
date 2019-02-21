@@ -13,3 +13,11 @@ export const NO_BRANCHES_CONTINUE =
 export const NEXT_RELEASE_VERSION = 'What should the next release version be?';
 
 export const CONFIRM_BRANCHES = 'Do you wish to continue with these branches?';
+
+export const FILTER_BRANCHES =
+  'Please provide comma seperated patterns to filter your branches e.g. feat/123, fix/401, that-feature-branch';
+
+export const SHOW_ALL_BRANCHES = 'Show me all branches';
+
+export const NO_MATCHES_FOUND =
+  'No matches found. Do you want to try again with new filters?';

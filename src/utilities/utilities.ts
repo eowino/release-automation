@@ -56,3 +56,11 @@ export function generateReleaseURL(
 
   return `https://github.com/${owner}/${repo}/releases/new?tag=v${releaseVersion}`;
 }
+
+export function matchStringsFromPattern(patterns: string[], strings: string[]) {
+  return strings.filter(value => {
+    return Boolean(
+      patterns.find(pattern => value.trim().includes(pattern.trim())),
+    );
+  });
+}
