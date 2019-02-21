@@ -21,3 +21,6 @@ export const SHOW_ALL_BRANCHES = 'Show me all branches';
 
 export const NO_MATCHES_FOUND =
   'No matches found. Do you want to try again with new filters?';
+
+export const WISH_TO_MERGE =
+  'Do you want to select branches to merge into the selected branch?';
