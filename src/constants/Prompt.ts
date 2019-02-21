@@ -11,3 +11,5 @@ export const NO_BRANCHES_CONTINUE =
   "You didn't select any branches. Do you still wish to continue with the release process on the current branch?";
 
 export const NEXT_RELEASE_VERSION = 'What should the next release version be?';
+
+export const CONFIRM_BRANCHES = 'Do you wish to continue with these branches?';

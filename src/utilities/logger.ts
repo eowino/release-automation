@@ -21,3 +21,11 @@ export function bold(...values: any) {
 export function underline(...values: any) {
   log('\n', chalk.underline(values));
 }
+
+export function confirm(...values: any) {
+  return chalk.blue(values);
+}
+
+export function newLine() {
+  log();
+}

@@ -29,6 +29,8 @@ export async function run() {
 }
 
 async function promptForNewBranchName() {
+  Log.newLine();
+
   const {
     baseBranch,
     branchName,
@@ -55,6 +57,8 @@ async function promptForNewBranchName() {
 }
 
 async function setBranchName(branchName: string, useExisiting: boolean) {
+  Log.newLine();
+
   let name = branchName;
 
   if (useExisiting) {
@@ -75,6 +79,8 @@ async function setBranchName(branchName: string, useExisiting: boolean) {
 }
 
 async function getBranchesToMerge(branchName: string) {
+  Log.newLine();
+
   const { selectedBranches, shouldContinue } = await CLI.promptBranches(
     branchName,
   );
@@ -104,11 +110,12 @@ async function getBranchesToMerge(branchName: string) {
       process.exit();
     }
   }
-  console.log('finish in here');
   return selectedBranches;
 }
 
 async function promptAndSetNextReleaseVersion(selectedBranches: string[]) {
+  Log.newLine();
+
   const nextVersion = await CLI.promptForNextReleaseVersion(selectedBranches);
   if (!nextVersion) {
     Log.danger(CLIConstants.MUST_SELECT_NEXT_VERSION);
@@ -128,6 +135,7 @@ async function promptAndSetNextReleaseVersion(selectedBranches: string[]) {
 }
 
 async function pushGitTags(branchName: string) {
+  Log.newLine();
   Log.info(CLIConstants.PUSHING_GIT_TAGS);
 
   const { error: pushTagsError } = await Git.pushFollowTags(branchName);
@@ -138,6 +146,7 @@ async function pushGitTags(branchName: string) {
 }
 
 async function gitCheckoutPreprodBranch() {
+  Log.newLine();
   Log.info(CLIConstants.CHECKOUT_PREPROD_BRANCH);
 
   const { error: checkoutPreprodError } = await Git.checkoutBranch('preprod');
@@ -148,6 +157,7 @@ async function gitCheckoutPreprodBranch() {
 }
 
 async function mergeBranchIntoPreprodBranch(branchName: string) {
+  Log.newLine();
   Log.info(CLIConstants.MERGE_BRANCH_INTO_PREPROD);
 
   const { error: mergeBranchError } = await Git.mergeBranch(branchName);
@@ -158,6 +168,7 @@ async function mergeBranchIntoPreprodBranch(branchName: string) {
 }
 
 async function pushPreprodBranch() {
+  Log.newLine();
   Log.info(CLIConstants.PUSHING_PREPROD_BRANCH);
   const { error: pushPreprodBranchError } = await Git.push(
     GitConstants.PREPROD_BRANCH,
@@ -168,6 +179,8 @@ async function pushPreprodBranch() {
 }
 
 async function generateReleaseURL(nextVersion: string) {
+  Log.newLine();
+
   const {
     error: getRemoteError,
     value: getRemoteValue,
