@@ -20,8 +20,7 @@
     "start": "tsc -w",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "publish": "npm run tslint && npm run build && npm publish",
-    "precommit": "./scripts/pre-commit-check.sh && lint-staged",
-    "pretty-quick": "pretty-quick",
+    "precommit": "./scripts/pre-commit-check.sh && lint-staged && pretty-quick",
     "format": "prettier --write src/**/*.{js,md,ts,json}"
   },
   "lint-staged": {
@@ -33,7 +32,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "pretty-quick --staged"
+      "pre-commit": "npm run precommit"
     }
   },
   "keywords": [
