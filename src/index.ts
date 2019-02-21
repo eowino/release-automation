@@ -202,5 +202,5 @@ async function generateReleaseURL(nextVersion: string) {
 
   const githubRelaseUrl = Util.generateReleaseURL(getRemoteValue, nextVersion);
   Log.success('Edit the release notes here:');
-  Log.info(githubRelaseUrl);
+  Log.underline(Log.confirm(githubRelaseUrl));
 }
