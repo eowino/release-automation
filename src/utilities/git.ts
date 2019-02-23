@@ -89,7 +89,7 @@ export async function fetchAll(): Promise<IResponseBoolean> {
         });
       } else {
         res({
-          error: bufferToString(data),
+          error: output,
         });
       }
     });
@@ -223,11 +223,11 @@ export async function push(
         output.includes('Create a pull request for')
       ) {
         res({
-          value: bufferToString(data),
+          value: output,
         });
       } else {
         res({
-          error: bufferToString(data),
+          error: output,
         });
       }
     });
@@ -259,11 +259,11 @@ export async function checkoutBranch(
 
       if (output.includes('Switched to branch')) {
         res({
-          value: bufferToString(data),
+          value: output,
         });
       } else {
         res({
-          error: bufferToString(data),
+          error: output,
         });
       }
     });
