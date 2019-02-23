@@ -242,6 +242,27 @@ export async function pushFollowTags(
   return await push(branchName, ['--follow-tags']);
 }
 
+export async function setGitTagVersion(
+  version: string,
+): Promise<IResponseString> {
+  const git = spawn('git', ['tag', '-a', `v${version}`, '-m', `${version}`]);
+
+  const promise: Promise<IResponseString> = new Promise(res => {
+    git.stdout.on('data', (data: Buffer) => {
+      res({
+        value: bufferToString(data),
+      });
+    });
+    git.stderr.on('data', (data: Buffer) => {
+      res({
+        error: bufferToString(data),
+      });
+    });
+  });
+
+  return promise;
+}
+
 export async function checkoutBranch(
   branchName: string,
 ): Promise<IResponseString> {
