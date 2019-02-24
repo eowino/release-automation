@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+import { exec, spawn } from 'child_process';
 
 import * as GitConstants from '../constants/Git';
 import {
@@ -246,18 +246,15 @@ export async function setGitTagVersion(
   version: string,
 ): Promise<IResponseString> {
   const nextVersion = formatGitTagVersion(version);
-  const git = spawn('git', ['tag', '-a', nextVersion, '-m', nextVersion]);
+  const cmd = `git tag -a ${nextVersion} -m ${nextVersion}`;
 
   const promise: Promise<IResponseString> = new Promise(res => {
-    git.stdout.on('data', (data: Buffer) => {
-      res({
-        value: bufferToString(data),
-      });
-    });
-    git.stderr.on('data', (data: Buffer) => {
-      res({
-        error: bufferToString(data),
-      });
+    exec(cmd, (err, stdout) => {
+      if (err) {
+        res({ error: err.message });
+      } else {
+        res({ value: stdout });
+      }
     });
   });
 
