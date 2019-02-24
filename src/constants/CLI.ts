@@ -21,10 +21,14 @@ export const TAGGING_GIT_VERSION = '🔧  Setting the git tag version';
 
 export const PUSHING_GIT_TAGS = '🏷   Pushing git tags';
 
-export const CHECKOUT_PREPROD_BRANCH = '👟  Switching to the preprod branch';
+export const CHECKOUT_STAGING_BRANCH = '👟  Switching to the staging branch';
 
-export const MERGE_BRANCH_INTO_PREPROD = '🔗  Merging branch into preprod';
+export const MERGE_BRANCH_INTO_STAGING =
+  '🔗  Merging branch into the staging branch';
 
-export const PUSHING_PREPROD_BRANCH = '➫  Pushing preprod branch to remote';
+export const PUSHING_STAGING_BRANCH = '➫  Pushing the staging branch to remote';
 
 export const RELEASE_PROCESS_FINISHED = '🏁  Release process finished  🎉';
+
+export const STAGING_NOT_FOUND_CREATE =
+  "🔧  The provided staging branch wasn't found, therefore, attempting to creating the branch";

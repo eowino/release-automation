@@ -26,3 +26,7 @@ export const WISH_TO_MERGE =
   'Do you want to select branches to merge into the selected branch?';
 
 export const VALUE_REQUIRED = 'Please provide a value';
+
+export const PUSH_TO_STAGING = 'Would you like to push to a staging branch?';
+
+export const NAME_OF_STAGING_BRANCH = 'Name of the staging branch?';

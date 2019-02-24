@@ -1,3 +1,5 @@
 export const ERROR_CREATE_BRANCH = 'Must provide a branch name!';
 export const DEFAULT_BASE_BRANCH = 'master';
-export const PREPROD_BRANCH = 'preprod';
+export const DEFAULT_STAGING_BRANCH = 'preprod';
+
+export const BRANCH_NOT_FOUND = 'did not match any file(s) known to git';
