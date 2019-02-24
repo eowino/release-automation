@@ -28,6 +28,7 @@ export async function run() {
   await mergeBranchIntoPreprodBranch(nameOfBranch);
   await pushPreprodBranch();
 
+  Log.newLine();
   Log.success(CLIConstants.RELEASE_PROCESS_FINISHED);
 
   await generateReleaseURL(nextVersion);
@@ -140,6 +141,10 @@ async function promptAndSetNextReleaseVersion(selectedBranches: string[]) {
       Log.danger(nextVersionError);
       process.exit();
     }
+  } else {
+    // Manually set git tag version as unable to do via 'npm version ${nextVersion}'
+    Log.info(CLIConstants.TAGGING_GIT_VERSION);
+    await Git.setGitTagVersion(nextVersion);
   }
 
   return nextVersion;

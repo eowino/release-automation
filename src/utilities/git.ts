@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+import { exec, spawn } from 'child_process';
 
 import * as GitConstants from '../constants/Git';
 import {
@@ -6,7 +6,7 @@ import {
   IResponseString,
   IResponseStringList,
 } from '../types/Utilities';
-import { bufferToString } from './utilities';
+import { bufferToString, formatGitTagVersion } from './utilities';
 
 const ORIGIN = 'origin/';
 
@@ -89,7 +89,7 @@ export async function fetchAll(): Promise<IResponseBoolean> {
         });
       } else {
         res({
-          error: bufferToString(data),
+          error: output,
         });
       }
     });
@@ -223,11 +223,11 @@ export async function push(
         output.includes('Create a pull request for')
       ) {
         res({
-          value: bufferToString(data),
+          value: output,
         });
       } else {
         res({
-          error: bufferToString(data),
+          error: output,
         });
       }
     });
@@ -240,6 +240,25 @@ export async function pushFollowTags(
   branchName: string,
 ): Promise<IResponseString> {
   return await push(branchName, ['--follow-tags']);
+}
+
+export async function setGitTagVersion(
+  version: string,
+): Promise<IResponseString> {
+  const nextVersion = formatGitTagVersion(version);
+  const cmd = `git tag -a ${nextVersion} -m ${nextVersion}`;
+
+  const promise: Promise<IResponseString> = new Promise(res => {
+    exec(cmd, (err, stdout) => {
+      if (err) {
+        res({ error: err.message });
+      } else {
+        res({ value: stdout });
+      }
+    });
+  });
+
+  return promise;
 }
 
 export async function checkoutBranch(
@@ -259,11 +278,11 @@ export async function checkoutBranch(
 
       if (output.includes('Switched to branch')) {
         res({
-          value: bufferToString(data),
+          value: output,
         });
       } else {
         res({
-          error: bufferToString(data),
+          error: output,
         });
       }
     });

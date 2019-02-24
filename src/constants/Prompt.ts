@@ -24,3 +24,5 @@ export const NO_MATCHES_FOUND =
 
 export const WISH_TO_MERGE =
   'Do you want to select branches to merge into the selected branch?';
+
+export const VALUE_REQUIRED = 'Please provide a value';

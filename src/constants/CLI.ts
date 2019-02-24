@@ -17,6 +17,8 @@ export const UNABLE_TO_SET_NPM_VERSION =
 
 export const SETTING_NEXT_NPM_VERSION = '🔧  Setting the next NPM version';
 
+export const TAGGING_GIT_VERSION = '🔧  Setting the git tag version';
+
 export const PUSHING_GIT_TAGS = '🏷   Pushing git tags';
 
 export const CHECKOUT_PREPROD_BRANCH = '👟  Switching to the preprod branch';
