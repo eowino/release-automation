@@ -1,4 +1,4 @@
-import { coerce } from 'semver';
+import semver, { coerce } from 'semver';
 import { INextRelease } from '../types/Utilities';
 
 export function bufferToString(buffer: Buffer): string {
@@ -12,14 +12,18 @@ export function suggestNextReleaseVersion(
   currentVersion: string,
   branchNames: string[],
 ): string {
-  const semver = coerce(currentVersion);
+  const semverVersion = coerce(currentVersion);
   const initialRelease: INextRelease = {
     feat: 0,
     fix: 0,
   };
 
-  if (!semver) {
+  if (!semverVersion) {
     return null;
+  }
+
+  if (semverVersion && branchNames.length === 0) {
+    return semver.inc(semverVersion, 'minor');
   }
 
   const nextRelease = branchNames.reduce((release, branchName) => {
