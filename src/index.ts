@@ -140,6 +140,10 @@ async function promptAndSetNextReleaseVersion(selectedBranches: string[]) {
       Log.danger(nextVersionError);
       process.exit();
     }
+  } else {
+    // Manually set git tag version as unable to do via 'npm version ${nextVersion}'
+    Log.info(CLIConstants.TAGGING_GIT_VERSION);
+    await Git.setGitTagVersion(nextVersion);
   }
 
   return nextVersion;

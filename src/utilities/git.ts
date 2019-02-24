@@ -6,7 +6,7 @@ import {
   IResponseString,
   IResponseStringList,
 } from '../types/Utilities';
-import { bufferToString } from './utilities';
+import { bufferToString, formatGitTagVersion } from './utilities';
 
 const ORIGIN = 'origin/';
 
@@ -245,7 +245,8 @@ export async function pushFollowTags(
 export async function setGitTagVersion(
   version: string,
 ): Promise<IResponseString> {
-  const git = spawn('git', ['tag', '-a', `v${version}`, '-m', `${version}`]);
+  const nextVersion = formatGitTagVersion(version);
+  const git = spawn('git', ['tag', '-a', nextVersion, '-m', nextVersion]);
 
   const promise: Promise<IResponseString> = new Promise(res => {
     git.stdout.on('data', (data: Buffer) => {

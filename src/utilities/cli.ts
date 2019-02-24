@@ -1,5 +1,6 @@
 import inquirer from 'inquirer';
 
+import * as CLIConstants from '../constants/CLI';
 import * as GitConstants from '../constants/Git';
 import * as Prompt from '../constants/Prompt';
 import * as CLITypes from '../types/CLI';
@@ -7,6 +8,16 @@ import * as NPM from '../utilities/npm';
 import * as Util from '../utilities/utilities';
 import * as Git from './git';
 import * as Log from './logger';
+
+function isRequired(validationMessage: string) {
+  return (value: string) => {
+    if (value.trim().length > 0) {
+      return true;
+    } else {
+      return validationMessage || Prompt.VALUE_REQUIRED;
+    }
+  };
+}
 
 async function continueIfBranchesNotChosen(
   currentBranch: string,
@@ -116,6 +127,7 @@ export async function promptForNextReleaseVersion(
     message: Prompt.NEXT_RELEASE_VERSION,
     name: 'nextVersion',
     type: 'input',
+    validate: isRequired(CLIConstants.MUST_SELECT_NEXT_VERSION),
   });
 
   return {

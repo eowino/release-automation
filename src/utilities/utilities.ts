@@ -64,3 +64,9 @@ export function matchStringsFromPattern(patterns: string[], strings: string[]) {
     );
   });
 }
+
+export function formatGitTagVersion(version: string): string {
+  return version.includes('.') || Number.isInteger(+version)
+    ? `v${version}`
+    : version;
+}
