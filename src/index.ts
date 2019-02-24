@@ -28,6 +28,7 @@ export async function run() {
   await mergeBranchIntoPreprodBranch(nameOfBranch);
   await pushPreprodBranch();
 
+  Log.newLine();
   Log.success(CLIConstants.RELEASE_PROCESS_FINISHED);
 
   await generateReleaseURL(nextVersion);
