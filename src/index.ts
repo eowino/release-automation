@@ -24,9 +24,14 @@ export async function run() {
 
   const nextVersion = await promptAndSetNextReleaseVersion(selectedBranches);
   await pushGitTags(nameOfBranch);
-  await gitCheckoutPreprodBranch();
-  await mergeBranchIntoPreprodBranch(nameOfBranch);
-  await pushPreprodBranch();
+
+  Log.newLine();
+  const { pushToStaging, stagingBranch } = await CLI.pushToStagingBranch();
+  if (pushToStaging) {
+    await gitCheckoutStagingBranch(stagingBranch);
+    await mergeBranchIntoStagingBranch(nameOfBranch);
+    await pushStagingBranch(stagingBranch);
+  }
 
   Log.newLine();
   Log.success(CLIConstants.RELEASE_PROCESS_FINISHED);
@@ -161,20 +166,38 @@ async function pushGitTags(branchName: string) {
   }
 }
 
-async function gitCheckoutPreprodBranch() {
+async function gitCheckoutStagingBranch(stagingBranch: string) {
   Log.newLine();
-  Log.info(CLIConstants.CHECKOUT_PREPROD_BRANCH);
+  Log.info(CLIConstants.CHECKOUT_STAGING_BRANCH);
 
-  const { error: checkoutPreprodError } = await Git.checkoutBranch('preprod');
-  if (checkoutPreprodError) {
-    Log.danger(checkoutPreprodError);
+  const { error: checkoutStagingError } = await Git.checkoutBranch(
+    stagingBranch,
+  );
+  if (checkoutStagingError) {
+    if (checkoutStagingError.includes(GitConstants.BRANCH_NOT_FOUND)) {
+      await createStagingBranch(stagingBranch);
+    } else {
+      Log.danger(checkoutStagingError);
+      process.exit();
+    }
+  }
+}
+
+async function createStagingBranch(stagingBranch: string) {
+  Log.newLine();
+  Log.info(CLIConstants.STAGING_NOT_FOUND_CREATE);
+
+  const { error: createBranchError } = await Git.createBranch(stagingBranch);
+
+  if (createBranchError) {
+    Log.danger(createBranchError);
     process.exit();
   }
 }
 
-async function mergeBranchIntoPreprodBranch(branchName: string) {
+async function mergeBranchIntoStagingBranch(branchName: string) {
   Log.newLine();
-  Log.info(CLIConstants.MERGE_BRANCH_INTO_PREPROD);
+  Log.info(CLIConstants.MERGE_BRANCH_INTO_STAGING);
 
   const { error: mergeBranchError } = await Git.mergeBranch(branchName);
   if (mergeBranchError) {
@@ -183,14 +206,12 @@ async function mergeBranchIntoPreprodBranch(branchName: string) {
   }
 }
 
-async function pushPreprodBranch() {
+async function pushStagingBranch(stagingBranch: string) {
   Log.newLine();
-  Log.info(CLIConstants.PUSHING_PREPROD_BRANCH);
-  const { error: pushPreprodBranchError } = await Git.push(
-    GitConstants.PREPROD_BRANCH,
-  );
-  if (pushPreprodBranchError) {
-    Log.danger(pushPreprodBranchError);
+  Log.info(CLIConstants.PUSHING_STAGING_BRANCH);
+  const { error: pushStagingBranchError } = await Git.push(stagingBranch);
+  if (pushStagingBranchError) {
+    Log.danger(pushStagingBranchError);
   }
 }
 

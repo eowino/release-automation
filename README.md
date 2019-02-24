@@ -48,6 +48,6 @@ release-automation
 
 6. The current branch will then be pushed with tags to github.
 
-7. The current branch will then be merged into the preprod branch. The preprod branch will then be pushed.
+7. The current branch will then be merged into the staging branch. The staging branch will then be pushed.
 
 8. A Github link to the release notes page for that release will be printed.

@@ -9,4 +9,8 @@ export interface IRealease {
   error?: string;
   /** The list of branches already merged */
   mergedBranches?: string[];
+  /** Whether you want to push to a staging branch or not */
+  staging?: boolean;
+  /** The name of the branch you want to push to */
+  stagingBranch?: string;
 }
