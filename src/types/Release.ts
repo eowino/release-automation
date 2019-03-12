@@ -1,12 +1,12 @@
 export interface IRealease {
   /** The name of the branch you want to create a release from */
-  branchName: string;
+  branchName?: string;
   /** The base branch you want to merge branches into. Default is master. */
-  baseBranch: string;
+  baseBranch?: string;
   /** The list of branches to branch into branchName */
-  branchesToMerge: string[];
+  branchesToMerge?: string[];
   /** Last logged error while executing */
-  error?: string;
+  error?: string | string[];
   /** The list of branches already merged */
   mergedBranches?: string[];
   /** Whether you want to push to a staging branch or not */

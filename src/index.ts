@@ -1,3 +1,4 @@
+import state from '../src/state';
 import * as CLIConstants from './constants/CLI';
 import * as GitConstants from './constants/Git';
 import * as CLI from './utilities/cli';
@@ -39,6 +40,20 @@ export async function run() {
   await generateReleaseURL(nextVersion);
 }
 
+async function serialiseProgressAndExit(errorMessage: string | string[]) {
+  if (Array.isArray(errorMessage)) {
+    errorMessage.forEach(message => {
+      Log.danger(message);
+    });
+  } else {
+    Log.danger(errorMessage);
+  }
+
+  state.error = errorMessage;
+  await state.serialize();
+  process.exit();
+}
+
 async function promptForNewBranchName() {
   Log.newLine();
 
@@ -54,8 +69,7 @@ async function promptForNewBranchName() {
       error: createBranchError,
     } = await Git.createBranch(branchName, baseBranch);
     if (createBranchError) {
-      Log.danger(createBranchError);
-      process.exit();
+      serialiseProgressAndExit(createBranchError);
     } else if (createBranchValue) {
       Log.success(createBranchValue);
     }
@@ -79,8 +93,7 @@ async function setBranchName(branchName: string, useExisiting: boolean) {
     } = await Git.getBranchName();
 
     if (getBranchNameError) {
-      Log.danger(getBranchNameError);
-      process.exit();
+      serialiseProgressAndExit(getBranchNameError);
     }
 
     name = getBranchNameValue;
@@ -116,9 +129,10 @@ async function getBranchesToMerge(branchName: string) {
     }
 
     if (errorMerge) {
-      Log.danger(CLIConstants.EXIT_AFTER_MERGE_FAIL);
-      Log.danger(errorMerge);
-      process.exit();
+      serialiseProgressAndExit([
+        CLIConstants.EXIT_AFTER_MERGE_FAIL,
+        errorMerge as string,
+      ]);
     }
   }
   return selectedBranches;
@@ -132,8 +146,7 @@ async function promptAndSetNextReleaseVersion(selectedBranches: string[]) {
     suggestedVersion,
   } = await CLI.promptForNextReleaseVersion(selectedBranches);
   if (!nextVersion) {
-    Log.danger(CLIConstants.MUST_SELECT_NEXT_VERSION);
-    process.exit();
+    serialiseProgressAndExit(CLIConstants.MUST_SELECT_NEXT_VERSION);
   }
 
   // suggestedVersion is null if unable to read from package.json
@@ -142,9 +155,10 @@ async function promptAndSetNextReleaseVersion(selectedBranches: string[]) {
 
     const { error: nextVersionError } = await NPM.setNextVersion(nextVersion);
     if (nextVersionError) {
-      Log.danger(CLIConstants.UNABLE_TO_SET_NPM_VERSION);
-      Log.danger(nextVersionError);
-      process.exit();
+      serialiseProgressAndExit([
+        CLIConstants.UNABLE_TO_SET_NPM_VERSION,
+        nextVersionError as string,
+      ]);
     }
   } else {
     // Manually set git tag version as unable to do via 'npm version ${nextVersion}'
@@ -161,8 +175,7 @@ async function pushGitTags(branchName: string) {
 
   const { error: pushTagsError } = await Git.pushFollowTags(branchName);
   if (pushTagsError) {
-    Log.danger(pushTagsError);
-    process.exit();
+    serialiseProgressAndExit(pushTagsError);
   }
 }
 
@@ -177,8 +190,7 @@ async function gitCheckoutStagingBranch(stagingBranch: string) {
     if (checkoutStagingError.includes(GitConstants.BRANCH_NOT_FOUND)) {
       await createStagingBranch(stagingBranch);
     } else {
-      Log.danger(checkoutStagingError);
-      process.exit();
+      serialiseProgressAndExit(checkoutStagingError);
     }
   }
 }
@@ -190,8 +202,7 @@ async function createStagingBranch(stagingBranch: string) {
   const { error: createBranchError } = await Git.createBranch(stagingBranch);
 
   if (createBranchError) {
-    Log.danger(createBranchError);
-    process.exit();
+    serialiseProgressAndExit(createBranchError);
   }
 }
 
@@ -201,8 +212,7 @@ async function mergeBranchIntoStagingBranch(branchName: string) {
 
   const { error: mergeBranchError } = await Git.mergeBranch(branchName);
   if (mergeBranchError) {
-    Log.danger(mergeBranchError);
-    process.exit();
+    serialiseProgressAndExit(mergeBranchError);
   }
 }
 
@@ -212,6 +222,7 @@ async function pushStagingBranch(stagingBranch: string) {
   const { error: pushStagingBranchError } = await Git.push(stagingBranch);
   if (pushStagingBranchError) {
     Log.danger(pushStagingBranchError);
+    state.error = pushStagingBranchError;
   }
 }
 
@@ -223,7 +234,7 @@ async function generateReleaseURL(nextVersion: string) {
     value: getRemoteValue,
   } = await Git.getRemote();
   if (getRemoteError) {
-    process.exit();
+    serialiseProgressAndExit(getRemoteError);
   }
 
   const githubRelaseUrl = Util.generateReleaseURL(getRemoteValue, nextVersion);
