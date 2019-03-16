@@ -1,4 +1,4 @@
-import { exec, spawn } from 'child_process';
+import { exec } from 'child_process';
 
 import * as GitConstants from '../constants/Git';
 import {
@@ -6,20 +6,20 @@ import {
   IResponseString,
   IResponseStringList,
 } from '../types/Utilities';
-import { bufferToString, formatGitTagVersion } from './utilities';
+import { formatGitTagVersion } from './utilities';
 
 const ORIGIN = 'origin/';
 
 export async function getAllBranches(): Promise<string[]> {
-  const git = spawn('git', ['branch', '-r']);
+  const cmd = 'git branch -r';
 
   const promise: Promise<string[]> = new Promise((res, rej) => {
-    git.stdout.on('data', (data: Buffer) => {
-      const branches = formatBranches(bufferToString(data));
-      res(branches);
-    });
-    git.stderr.on('data', (data: Buffer) => {
-      rej(bufferToString(data));
+    exec(cmd, (err, value) => {
+      if (err) {
+        rej({ error: err.message });
+      } else {
+        res(formatBranches(value));
+      }
     });
   });
 
@@ -59,16 +59,14 @@ function getListOfBranches(branches: string): string[] {
 }
 
 export async function isGitRepository(): Promise<boolean> {
-  const git = spawn('git', ['rev-parse', '--is-inside-work-tree']);
+  const cmd = 'git rev-parse --is-inside-work-tree';
 
   const promise: Promise<boolean> = new Promise(res => {
-    git.stdout.on('data', (data: Buffer) => {
-      const isGitRepo = bufferToString(data) === 'true' ? true : false;
-      res(isGitRepo);
-    });
-
-    git.stderr.on('data', () => {
-      res(false);
+    exec(cmd, err => {
+      if (err) {
+        res(false);
+      }
+      res(true);
     });
   });
 
@@ -76,26 +74,16 @@ export async function isGitRepository(): Promise<boolean> {
 }
 
 export async function fetchAll(): Promise<IResponseBoolean> {
-  const git = spawn('git', ['fetch', '--all']);
+  const cmd = 'git fetch --all';
 
   const promise: Promise<IResponseBoolean> = new Promise(res => {
-    git.stdout.on('data', (data: Buffer) => {
+    exec(cmd, (err, value) => {
+      if (err) {
+        res({ error: err.message });
+      }
       res({
         value: true,
       });
-    });
-    git.stderr.on('data', (data: Buffer) => {
-      const output = bufferToString(data);
-
-      if (output.length === 0 || output.includes('Fetching origin')) {
-        res({
-          value: true,
-        });
-      } else {
-        res({
-          error: output,
-        });
-      }
     });
   });
 
@@ -112,26 +100,17 @@ export async function createBranch(
     });
   }
 
-  const git = spawn('git', ['checkout', '-b', newBranchName, baseBranch]);
+  const cmd = `git checkout -b ${newBranchName} ${baseBranch}`;
 
   const promise: Promise<IResponseString> = new Promise(res => {
-    git.stdout.on('data', (data: Buffer) => {
-      res({
-        value: bufferToString(data),
-      });
-    });
-    git.stderr.on('data', (data: Buffer) => {
-      const output = bufferToString(data);
-      // sometimes reports a false negative
-      if (output.includes('Switched to a new branch')) {
-        res({
-          value: output,
-        });
-      } else {
-        res({
-          error: output,
-        });
+    exec(cmd, (err, value) => {
+      if (err) {
+        res({ error: err.message });
       }
+
+      res({
+        value,
+      });
     });
   });
 
@@ -167,8 +146,10 @@ export async function mergeBranches(
   branches: string[],
 ): Promise<IResponseStringList> {
   const succesfulMerges: string[] = [];
+
   for (const branch of branches) {
     const { error, value } = await mergeBranch(branch);
+
     if (error) {
       return Promise.resolve({
         error,
@@ -189,57 +170,31 @@ export async function push(
   branchName: string,
   args: ReadonlyArray<string> = [],
 ): Promise<IResponseString> {
-  const git = spawn('git', [
-    'push',
-    '--set-upstream',
-    'origin',
-    branchName,
-    ...args,
-  ]);
+  const cmd = `git push --set-upstream origin ${branchName}`;
 
   const promise: Promise<IResponseString> = new Promise(res => {
-    git.stdout.on('data', (data: Buffer) => {
-      res({
-        value: bufferToString(data),
-      });
-    });
-    git.stderr.on('data', (data: Buffer) => {
-      const output = bufferToString(data);
-      // sometimes reports a false negative
-      if (
-        output.includes('To github.com') ||
-        output.includes('Everything up-to-date') ||
-        output.includes('Create a pull request for')
-      ) {
-        res({
-          value: output,
-        });
-      } else {
-        res({
-          error: output,
-        });
+    exec(cmd, (err, value) => {
+      if (err) {
+        res({ error: err.message });
       }
+      res({
+        value,
+      });
     });
   });
 
   return promise;
 }
 
-export async function pushFollowTags(
-  branchName: string,
-): Promise<IResponseString> {
-  return await push(branchName, ['--follow-tags']);
-}
-
 export async function pushTags(): Promise<IResponseString> {
   const cmd = 'git push origin --tags';
 
   const promise: Promise<IResponseString> = new Promise(res => {
-    exec(cmd, (err, stdout) => {
+    exec(cmd, (err, value) => {
       if (err) {
         res({ error: err.message });
       } else {
-        res({ value: stdout });
+        res({ value });
       }
     });
   });
@@ -254,11 +209,11 @@ export async function setGitTagVersion(
   const cmd = `git tag -a ${nextVersion} -m ${nextVersion}`;
 
   const promise: Promise<IResponseString> = new Promise(res => {
-    exec(cmd, (err, stdout) => {
+    exec(cmd, (err, value) => {
       if (err) {
         res({ error: err.message });
       } else {
-        res({ value: stdout });
+        res({ value });
       }
     });
   });
@@ -272,11 +227,11 @@ export async function checkoutBranch(
   const cmd = `git checkout ${branchName}`;
 
   const promise: Promise<IResponseString> = new Promise(res => {
-    exec(cmd, (err, stdout) => {
+    exec(cmd, (err, value) => {
       if (err) {
         res({ error: err.message });
       } else {
-        res({ value: stdout });
+        res({ value });
       }
     });
   });
@@ -285,18 +240,14 @@ export async function checkoutBranch(
 }
 
 export async function getBranchName(): Promise<IResponseString> {
-  const git = spawn('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
+  const cmd = 'git rev-parse --abbrev-ref HEAD';
 
   const promise: Promise<IResponseString> = new Promise(res => {
-    git.stdout.on('data', (data: Buffer) => {
-      res({
-        value: bufferToString(data),
-      });
-    });
-    git.stderr.on('data', (data: Buffer) => {
-      res({
-        error: bufferToString(data),
-      });
+    exec(cmd, (err, value) => {
+      if (err) {
+        res({ error: err.message });
+      }
+      res({ value });
     });
   });
 
@@ -304,18 +255,14 @@ export async function getBranchName(): Promise<IResponseString> {
 }
 
 export async function getRemote(): Promise<IResponseString> {
-  const git = spawn('git', ['config', '--get', 'remote.origin.url']);
+  const cmd = 'git config --get remote.origin.url';
 
   const promise: Promise<IResponseString> = new Promise(res => {
-    git.stdout.on('data', (data: Buffer) => {
-      res({
-        value: bufferToString(data),
-      });
-    });
-    git.stderr.on('data', (data: Buffer) => {
-      res({
-        error: bufferToString(data),
-      });
+    exec(cmd, (err, value) => {
+      if (err) {
+        res({ error: err.message });
+      }
+      res({ value });
     });
   });
 
