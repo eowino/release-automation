@@ -4,13 +4,21 @@ export interface IRealease {
   /** The base branch you want to merge branches into. Default is master. */
   baseBranch?: string;
   /** The list of branches to branch into branchName */
-  branchesToMerge?: string[];
+  selectedBranches?: string[];
   /** Last logged error while executing */
-  error?: string | string[];
+  error?: string[];
   /** The list of branches already merged */
   mergedBranches?: string[];
   /** Whether you want to push to a staging branch or not */
-  staging?: boolean;
+  pushTostaging?: boolean;
   /** The name of the branch you want to push to */
   stagingBranch?: string;
+  /** Whether you want to use the existing branch */
+  useExisitingBranch?: boolean;
+  /** Whether you wish to merge branches */
+  wishToMerge?: boolean;
+  /** Next release version */
+  nextReleaseVersion?: string;
+  /** Github release URL */
+  releaseURL?: string;
 }

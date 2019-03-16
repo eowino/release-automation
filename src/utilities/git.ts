@@ -26,6 +26,10 @@ export async function getAllBranches(): Promise<string[]> {
   return promise;
 }
 
+export function getMergeMessage(branchName: string): string {
+  return `${GitConstants.SUCCESSFUL_MERGE} ${branchName}`;
+}
+
 function formatBranches(branches: string) {
   return removeOriginFromBranchName(getListOfBranches(branches));
 }
@@ -140,34 +144,19 @@ export async function createBranch(
 export async function mergeBranch(
   branchName: string,
 ): Promise<IResponseString> {
-  const git = spawn('git', ['merge', ORIGIN + branchName]);
+  const cmd = `git merge ${ORIGIN}${branchName}`;
 
   const promise: Promise<IResponseString> = new Promise(res => {
-    git.stdout.on('data', (data: Buffer) => {
-      const output = bufferToString(data);
-
-      if (output.includes('CONFLICT')) {
-        res({
-          error: output,
-        });
+    exec(cmd, err => {
+      if (err) {
+        res({ error: err.message });
       } else {
-        res({
-          value: output,
-        });
+        res({ value: branchName });
       }
-    });
-    git.stderr.on('data', (data: Buffer) => {
-      res({
-        error: bufferToString(data),
-      });
     });
   });
 
   return promise;
-}
-
-function mergeMessage(branchName: string, response: string) {
-  return `Branch name: ${branchName}, Result: ${response}`;
 }
 
 /**
@@ -178,16 +167,16 @@ export async function mergeBranches(
   branches: string[],
 ): Promise<IResponseStringList> {
   const succesfulMerges: string[] = [];
-
   for (const branch of branches) {
-    const response = await mergeBranch(branch);
-    if (response.error) {
+    const { error, value } = await mergeBranch(branch);
+    if (error) {
       return Promise.resolve({
-        error: response.error,
+        error,
+        value: succesfulMerges,
       });
     }
-    if (response.value) {
-      succesfulMerges.push(mergeMessage(branch, response.value as string));
+    if (value) {
+      succesfulMerges.push(value);
     }
   }
 
@@ -242,6 +231,22 @@ export async function pushFollowTags(
   return await push(branchName, ['--follow-tags']);
 }
 
+export async function pushTags(): Promise<IResponseString> {
+  const cmd = 'git push origin --tags';
+
+  const promise: Promise<IResponseString> = new Promise(res => {
+    exec(cmd, (err, stdout) => {
+      if (err) {
+        res({ error: err.message });
+      } else {
+        res({ value: stdout });
+      }
+    });
+  });
+
+  return promise;
+}
+
 export async function setGitTagVersion(
   version: string,
 ): Promise<IResponseString> {
@@ -264,26 +269,14 @@ export async function setGitTagVersion(
 export async function checkoutBranch(
   branchName: string,
 ): Promise<IResponseString> {
-  const git = spawn('git', ['checkout', branchName]);
+  const cmd = `git checkout ${branchName}`;
 
   const promise: Promise<IResponseString> = new Promise(res => {
-    git.stdout.on('data', (data: Buffer) => {
-      res({
-        value: bufferToString(data),
-      });
-    });
-    git.stderr.on('data', (data: Buffer) => {
-      const output = bufferToString(data);
-      // sometimes reports a false negative
-
-      if (output.includes('Switched to branch')) {
-        res({
-          value: output,
-        });
+    exec(cmd, (err, stdout) => {
+      if (err) {
+        res({ error: err.message });
       } else {
-        res({
-          error: output,
-        });
+        res({ value: stdout });
       }
     });
   });

@@ -10,6 +10,7 @@ class ReleaseState {
 
   constructor() {
     this.initState();
+    this.state.error = [];
   }
 
   set branchName(branchName: string) {
@@ -20,24 +21,44 @@ class ReleaseState {
     this.state.baseBranch = baseBranch;
   }
 
-  set branchesToMerge(branchesToMerge: string[]) {
-    this.state.branchesToMerge = branchesToMerge;
+  set selectedBranches(selectedBranches: string[]) {
+    this.state.selectedBranches = selectedBranches;
   }
 
-  set error(error: string | string[]) {
-    this.state.error = error;
+  public addError(error: string | string[]) {
+    if (Array.isArray(error)) {
+      this.state.error.push(...error.filter(Boolean));
+    } else {
+      this.state.error.push(error);
+    }
+  }
+
+  set releaseURL(releaseURL: string) {
+    this.state.releaseURL = releaseURL;
   }
 
   set mergedBranches(mergedBranches: string[]) {
     this.state.mergedBranches = mergedBranches;
   }
 
-  set staging(staging: boolean) {
-    this.state.staging = staging;
-  }
-
   set stagingBranch(stagingBranch: string) {
     this.state.stagingBranch = stagingBranch;
+  }
+
+  set useExistingBranch(useExisitingBranch: boolean) {
+    this.state.useExisitingBranch = useExisitingBranch || false;
+  }
+
+  set wishToMerge(wishToMerge: boolean) {
+    this.state.wishToMerge = wishToMerge || false;
+  }
+
+  set pushTostaging(pushTostaging: boolean) {
+    this.state.pushTostaging = pushTostaging || false;
+  }
+
+  set nextReleaseVersion(nextReleaseVersion: string) {
+    this.state.nextReleaseVersion = nextReleaseVersion;
   }
 
   public toJSON() {
@@ -52,6 +73,8 @@ class ReleaseState {
       this.state = initialState;
     } catch {
       this.state = {};
+      this.state.selectedBranches = [];
+      this.state.mergedBranches = [];
     }
   }
 

@@ -7,7 +7,7 @@ export const BEGIN_MERGE = '🔗  Beginning merge process';
 
 export const EXIT_AFTER_MERGE_FAIL =
   // tslint:disable-next-line: max-line-length
-  '🚫  It seems a merge failed. The release process will terminate to allow you to resolve the issue. Run agin once resolved.';
+  '🚫  It seems a merge failed. The release process will terminate to allow you to resolve the issue. Run again once resolved.';
 
 export const MUST_SELECT_NEXT_VERSION =
   '🚫  You must select the next release version.';
@@ -19,7 +19,7 @@ export const SETTING_NEXT_NPM_VERSION = '🔧  Setting the next NPM version';
 
 export const TAGGING_GIT_VERSION = '🔧  Setting the git tag version';
 
-export const PUSHING_GIT_TAGS = '🏷   Pushing git tags';
+export const PUSHING_GIT_TAGS = '🏷   Pushing branch with tags';
 
 export const CHECKOUT_STAGING_BRANCH = '👟  Switching to the staging branch';
 
