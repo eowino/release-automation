@@ -21,7 +21,7 @@
     "tslint": "tslint -c tslint.json -p tsconfig.json --fix",
     "prepublish": "npm run tslint && npm run build",
     "precommit": "./scripts/pre-commit-check.sh && pretty-quick --staged && npm run tslint",
-    "format": "prettier --write src/**/*.{js,md,ts,json}"
+    "format": "prettier --write 'src/**/*.{js,md,ts,json}'"
   },
   "husky": {
     "hooks": {
