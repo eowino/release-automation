@@ -233,7 +233,10 @@ async function mergeBranchIntoStagingBranch(branchName: string) {
 
   const { error: mergeBranchError } = await Git.mergeBranch(branchName);
   if (mergeBranchError) {
-    await serialiseProgressAndExit(mergeBranchError);
+    await serialiseProgressAndExit([
+      CLIConstants.EXIT_AFTER_MERGE_FAIL,
+      mergeBranchError as string,
+    ]);
   }
 }
 
