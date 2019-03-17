@@ -41,7 +41,9 @@ export async function promptBranches(
   const { error } = await Git.fetchAll();
 
   if (error) {
-    return null;
+    return {
+      error: error as string,
+    };
   }
 
   const branches = await Git.getAllBranches();

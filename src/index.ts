@@ -10,8 +10,7 @@ import * as Util from './utilities/utilities';
 export async function run() {
   const isGitRepo = await Git.isGitRepository();
   if (!isGitRepo) {
-    Log.danger(CLIConstants.MUST_BE_GIT_REPO);
-    process.exit();
+    await serialiseProgressAndExit(CLIConstants.MUST_BE_GIT_REPO);
   }
 
   const { branchName, useExisiting } = await promptForNewBranchName();
@@ -117,13 +116,16 @@ async function setBranchName(branchName: string, useExisiting: boolean) {
 async function getBranchesToMerge(branchName: string) {
   Log.newLine();
 
-  const { selectedBranches, shouldContinue } = await CLI.promptBranches(
+  const { selectedBranches, shouldContinue, error } = await CLI.promptBranches(
     branchName,
   );
 
+  if (error) {
+    await serialiseProgressAndExit(error);
+  }
+
   if (selectedBranches.length === 0 && !shouldContinue) {
-    Log.info(CLIConstants.GOODBYE);
-    process.exit();
+    await serialiseProgressAndExit(CLIConstants.GOODBYE);
   }
 
   state.selectedBranches = selectedBranches;
@@ -252,16 +254,15 @@ async function pushStagingBranch(stagingBranch: string) {
 
 async function generateReleaseURL(nextVersion: string) {
   Log.newLine();
-
   const {
-    error: getRemoteError,
-    value: getRemoteValue,
+    error: gitRemoteError,
+    value: gitRemoteValue,
   } = await Git.getRemote();
-  if (getRemoteError) {
-    await serialiseProgressAndExit(getRemoteError);
+  if (gitRemoteError) {
+    await serialiseProgressAndExit(gitRemoteError);
   }
 
-  const githubRelaseUrl = Util.generateReleaseURL(getRemoteValue, nextVersion);
+  const githubRelaseUrl = Util.generateReleaseURL(gitRemoteValue, nextVersion);
   state.releaseURL = githubRelaseUrl;
   Log.success('Edit the release notes here:');
   Log.underline(Log.confirm(githubRelaseUrl));

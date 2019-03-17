@@ -77,7 +77,7 @@ export async function fetchAll(): Promise<IResponseBoolean> {
   const cmd = 'git fetch --all';
 
   const promise: Promise<IResponseBoolean> = new Promise(res => {
-    exec(cmd, (err, value) => {
+    exec(cmd, err => {
       if (err) {
         res({ error: err.message });
       }

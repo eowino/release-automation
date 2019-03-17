@@ -56,7 +56,7 @@ export function generateReleaseURL(
   const delimeter = gitRemoteOriginURL.startsWith('git') ? ':' : '/';
   const [_, ownerAndRepo] = gitRemoteOriginURL.split(`github.com${delimeter}`);
   const [owner, repoWithGit] = ownerAndRepo.split('/');
-  const repo = repoWithGit.substring(0, repoWithGit.length - 4);
+  const [repo] = repoWithGit.split('.git');
 
   return `https://github.com/${owner}/${repo}/releases/new?tag=v${releaseVersion}`;
 }

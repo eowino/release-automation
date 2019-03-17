@@ -7,23 +7,23 @@ export function info(...values: any) {
 }
 
 export function success(...values: any) {
-  log('\n', chalk.green(values));
+  log('\n', chalk.green(...values));
 }
 
 export function danger(...values: any) {
-  log('\n', chalk.red(values));
+  log('\n', chalk.red(...values));
 }
 
 export function bold(...values: any) {
-  log('\n', chalk.bold(values));
+  log('\n', chalk.bold(...values));
 }
 
 export function underline(...values: any) {
-  log('\n', chalk.underline(values));
+  log('\n', chalk.underline(...values));
 }
 
 export function confirm(...values: any) {
-  return chalk.blue(values);
+  return chalk.blue(...values);
 }
 
 export function newLine() {
