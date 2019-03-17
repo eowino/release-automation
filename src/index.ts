@@ -13,6 +13,14 @@ export async function run() {
     await serialiseProgressAndExit(CLIConstants.MUST_BE_GIT_REPO);
   }
 
+  if (state.releaseFileLocated) {
+    Log.newLine();
+    const resume = await CLI.resumeReleaseProcess();
+    if (resume) {
+      state.resume = resume;
+    }
+  }
+
   const { branchName, useExisiting } = await promptForNewBranchName();
   const nameOfBranch = await setBranchName(branchName, useExisiting);
   const wishToMerge = await CLI.doYouWishToMerge();

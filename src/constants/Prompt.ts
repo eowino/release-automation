@@ -30,3 +30,6 @@ export const VALUE_REQUIRED = 'Please provide a value';
 export const PUSH_TO_STAGING = 'Would you like to push to a staging branch?';
 
 export const NAME_OF_STAGING_BRANCH = 'Name of the staging branch?';
+
+export const RESUME =
+  'A release-config.json file was found. Would you like to resume with your previous release?';

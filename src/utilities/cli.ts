@@ -34,6 +34,16 @@ async function continueIfBranchesNotChosen(
   return shouldContinue;
 }
 
+export async function resumeReleaseProcess(): Promise<boolean> {
+  const { resume }: { resume: boolean } = await inquirer.prompt({
+    message: Prompt.RESUME,
+    name: 'resume',
+    type: 'confirm',
+  });
+
+  return resume;
+}
+
 export async function promptBranches(
   currentBranch: string,
 ): Promise<CLITypes.IPromptBranches> {

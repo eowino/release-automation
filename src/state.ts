@@ -6,11 +6,16 @@ import { writeStringToFile } from './utilities/file';
 import * as Log from './utilities/logger';
 
 class ReleaseState {
+  public releaseFileLocated = false;
   private state: IRealease;
 
   constructor() {
     this.initState();
     this.state.error = [];
+  }
+
+  set resume(resume: boolean) {
+    this.state.resume = resume;
   }
 
   set branchName(branchName: string) {
@@ -71,6 +76,7 @@ class ReleaseState {
     try {
       const initialState = require(progressFilePath);
       this.state = initialState;
+      this.releaseFileLocated = true;
     } catch {
       this.state = {};
       this.state.selectedBranches = [];

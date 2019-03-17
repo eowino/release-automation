@@ -21,4 +21,6 @@ export interface IRealease {
   nextReleaseVersion?: string;
   /** Github release URL */
   releaseURL?: string;
+  /** Whether you want to resume with the release process */
+  resume?: boolean;
 }
