@@ -227,3 +227,31 @@ export async function pushToStagingBranch(): Promise<{
     stagingBranch,
   };
 }
+
+export async function createPRIntoStagingBranch(): Promise<{
+  createPRToStagingBranch: boolean;
+  stagingBranch: string;
+}> {
+  const {
+    createPRToStagingBranch,
+  }: { createPRToStagingBranch: boolean } = await inquirer.prompt({
+    default: true,
+    message: Prompt.CREATE_PR_TO_STAGING,
+    name: 'createPRToStagingBranch',
+    type: 'confirm',
+  });
+
+  const { stagingBranch }: { stagingBranch: string } = await inquirer.prompt({
+    default: GitConstants.DEFAULT_STAGING_BRANCH,
+    message: Prompt.NAME_OF_STAGING_BRANCH,
+    name: 'stagingBranch',
+    type: 'input',
+    validate: isRequired(),
+    when: createPRToStagingBranch,
+  });
+
+  return {
+    createPRToStagingBranch,
+    stagingBranch,
+  };
+}

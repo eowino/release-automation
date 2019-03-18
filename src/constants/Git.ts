@@ -4,3 +4,5 @@ export const DEFAULT_STAGING_BRANCH = 'preprod';
 
 export const BRANCH_NOT_FOUND = 'did not match any file(s) known to git';
 export const SUCCESSFUL_MERGE = '✅  Branch merged successfully:';
+
+export const PR_CREATED = 'Pull request created:';

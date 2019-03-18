@@ -18,6 +18,14 @@ class ReleaseState {
     this.state.resume = resume;
   }
 
+  set owner(owner: string) {
+    this.state.owner = owner;
+  }
+
+  set repo(repo: string) {
+    this.state.repo = repo;
+  }
+
   set branchName(branchName: string) {
     this.state.branchName = branchName;
   }
@@ -58,8 +66,8 @@ class ReleaseState {
     this.state.wishToMerge = wishToMerge || false;
   }
 
-  set pushTostaging(pushTostaging: boolean) {
-    this.state.pushTostaging = pushTostaging || false;
+  set createPRToStagingBranch(createPRToStagingBranch: boolean) {
+    this.state.createPRToStagingBranch = createPRToStagingBranch || false;
   }
 
   set nextReleaseVersion(nextReleaseVersion: string) {

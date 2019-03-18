@@ -14,3 +14,13 @@
 - change all usages of `spawn` to `exec` ✅
 - use initial state
 - consider switching from 'Would you like to push to a staging branch?' to 'create a PR into a staging branch'
+
+branchName,
+baseBranch,
+selectedBranches,
+mergedBranches,
+branches to mergeBranch,
+
+## Description
+
+- [x] Description of feature/fix here

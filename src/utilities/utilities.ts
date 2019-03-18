@@ -49,15 +49,28 @@ function getIncrementedVersion(
   return `${major}.${minor + nextRelease.feat}.${patch + nextRelease.fix}`;
 }
 
-export function generateReleaseURL(
+export function getOwnerAndRepo(
   gitRemoteOriginURL: string,
-  releaseVersion: string,
-): string {
+): {
+  owner: string;
+  repo: string;
+} {
   const delimeter = gitRemoteOriginURL.startsWith('git') ? ':' : '/';
   const [_, ownerAndRepo] = gitRemoteOriginURL.split(`github.com${delimeter}`);
   const [owner, repoWithGit] = ownerAndRepo.split('/');
   const [repo] = repoWithGit.split('.git');
 
+  return {
+    owner,
+    repo,
+  };
+}
+
+export function generateReleaseURL(
+  owner: string,
+  repo: string,
+  releaseVersion: string,
+): string {
   return `https://github.com/${owner}/${repo}/releases/new?tag=v${releaseVersion}`;
 }
 
