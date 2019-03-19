@@ -15,11 +15,11 @@ export interface IGithubPR {
 
 export interface IGithubPRResponse {
   /** example: https://api.github.com/repos/octocat/Hello-World/pulls/1347 */
-  url: string;
+  url?: string;
   /** example: "https://github.com/octocat/Hello-World/pull/1347" */
-  html_url: string;
+  html_url?: string;
   /** The state of the PR: e.g. open | closed | etc. */
-  state: string;
+  state?: string;
 }
 
 export interface ICreatePR extends IGithubPRResponse {

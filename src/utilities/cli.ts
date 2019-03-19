@@ -202,32 +202,6 @@ export async function doYouWishToMerge(): Promise<boolean> {
   return wishToMerge;
 }
 
-export async function pushToStagingBranch(): Promise<{
-  pushToStaging: boolean;
-  stagingBranch: string;
-}> {
-  const { pushToStaging }: { pushToStaging: boolean } = await inquirer.prompt({
-    default: true,
-    message: Prompt.PUSH_TO_STAGING,
-    name: 'pushToStaging',
-    type: 'confirm',
-  });
-
-  const { stagingBranch }: { stagingBranch: string } = await inquirer.prompt({
-    default: GitConstants.DEFAULT_STAGING_BRANCH,
-    message: Prompt.NAME_OF_STAGING_BRANCH,
-    name: 'stagingBranch',
-    type: 'input',
-    validate: isRequired(),
-    when: pushToStaging,
-  });
-
-  return {
-    pushToStaging,
-    stagingBranch,
-  };
-}
-
 export async function createPRIntoStagingBranch(): Promise<{
   createPRToStagingBranch: boolean;
   stagingBranch: string;

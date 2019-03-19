@@ -32,3 +32,8 @@ export const RELEASE_PROCESS_FINISHED = '🏁  Release process finished  🎉';
 
 export const STAGING_NOT_FOUND_CREATE =
   "🔧  The provided staging branch wasn't found, therefore, attempting to creating the branch";
+
+export const FAILED_TO_CREATE_PR =
+  '🚫  Failed to create a Pull Request in Github';
+
+export const CREATE_PR = 'Create a Pull Request here: ';

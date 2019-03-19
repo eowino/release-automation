@@ -7,7 +7,7 @@ import * as Log from './utilities/logger';
 
 class ReleaseState {
   public releaseFileLocated = false;
-  private state: IRealease;
+  public state: IRealease;
 
   constructor() {
     this.initState();

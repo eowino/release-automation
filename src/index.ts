@@ -1,6 +1,6 @@
 import * as CLIConstants from './constants/CLI';
 import * as GitConstants from './constants/Git';
-import state from './state';
+import stateHelper from './state';
 import * as CLI from './utilities/cli';
 import * as Git from './utilities/git';
 import * as Github from './utilities/github';
@@ -16,18 +16,18 @@ export async function run() {
 
   setOwnerAndRepo();
 
-  if (state.releaseFileLocated) {
+  if (stateHelper.releaseFileLocated) {
     Log.newLine();
     const resume = await CLI.resumeReleaseProcess();
     if (resume) {
-      state.resume = resume;
+      stateHelper.resume = resume;
     }
   }
 
   const { branchName, useExisiting } = await promptForNewBranchName();
   const nameOfBranch = await setBranchName(branchName, useExisiting);
   const wishToMerge = await CLI.doYouWishToMerge();
-  state.wishToMerge = wishToMerge;
+  stateHelper.wishToMerge = wishToMerge;
 
   let selectedBranches: string[] = [];
 
@@ -36,17 +36,14 @@ export async function run() {
   }
 
   const nextVersion = await promptAndSetNextReleaseVersion(selectedBranches);
-  state.nextReleaseVersion = nextVersion;
+  stateHelper.nextReleaseVersion = nextVersion;
 
   await pushBranchWithTags(nameOfBranch);
-
-  Log.newLine();
   await confirmAndCreatePRIntoStaging();
+  await generateReleaseURL();
 
   Log.newLine();
   Log.success(CLIConstants.RELEASE_PROCESS_FINISHED);
-
-  await generateReleaseURL();
 }
 
 async function serialiseProgressAndExit(errorMessage: string | string[]) {
@@ -54,13 +51,13 @@ async function serialiseProgressAndExit(errorMessage: string | string[]) {
     errorMessage.forEach(message => {
       Log.danger(message);
     });
-    state.addError(errorMessage);
+    stateHelper.addError(errorMessage);
   } else {
     Log.danger(errorMessage);
-    state.addError(errorMessage);
+    stateHelper.addError(errorMessage);
   }
 
-  await state.serialize();
+  await stateHelper.serialize();
   process.exit();
 }
 
@@ -73,9 +70,9 @@ async function promptForNewBranchName() {
     useExisiting,
   } = await CLI.promptForNewBranchName();
 
-  state.baseBranch = baseBranch;
-  state.branchName = branchName;
-  state.useExistingBranch = useExisiting;
+  stateHelper.baseBranch = baseBranch;
+  stateHelper.branchName = branchName;
+  stateHelper.useExistingBranch = useExisiting;
 
   if (!useExisiting) {
     const {
@@ -111,7 +108,7 @@ async function setBranchName(branchName: string, useExisiting: boolean) {
     }
 
     name = getBranchNameValue;
-    state.branchName = name;
+    stateHelper.branchName = name;
   }
 
   return Promise.resolve(name);
@@ -132,7 +129,7 @@ async function getBranchesToMerge(branchName: string) {
     await serialiseProgressAndExit(CLIConstants.GOODBYE);
   }
 
-  state.selectedBranches = selectedBranches;
+  stateHelper.selectedBranches = selectedBranches;
 
   if (selectedBranches.length > 0) {
     Log.info(CLIConstants.BEGIN_MERGE);
@@ -142,7 +139,7 @@ async function getBranchesToMerge(branchName: string) {
       value: successfulMerges = [],
     } = await Git.mergeBranches(selectedBranches);
 
-    state.mergedBranches = successfulMerges;
+    stateHelper.mergedBranches = successfulMerges;
 
     if (successfulMerges.length > 0) {
       successfulMerges.forEach(successBranch => {
@@ -192,7 +189,6 @@ async function promptAndSetNextReleaseVersion(selectedBranches: string[]) {
 }
 
 async function pushBranchWithTags(branchName: string) {
-  Log.newLine();
   Log.info(CLIConstants.PUSHING_GIT_TAGS);
 
   const { error: pushError } = await Git.push(branchName);
@@ -233,67 +229,39 @@ async function createStagingBranch(stagingBranch: string) {
   }
 }
 
-/**
- * @deprecated
- */
-async function __mergeBranchIntoStagingBranch(branchName: string) {
-  Log.newLine();
-  Log.info(CLIConstants.MERGE_BRANCH_INTO_STAGING);
-
-  const { error: mergeBranchError } = await Git.mergeBranch(branchName);
-  if (mergeBranchError) {
-    await serialiseProgressAndExit([
-      CLIConstants.EXIT_AFTER_MERGE_FAIL,
-      mergeBranchError as string,
-    ]);
-  }
-}
-
 async function confirmAndCreatePRIntoStaging() {
   Log.newLine();
   const {
     createPRToStagingBranch,
     stagingBranch,
   } = await CLI.createPRIntoStagingBranch();
-  state.createPRToStagingBranch = createPRToStagingBranch;
-  state.stagingBranch = stagingBranch;
+  stateHelper.createPRToStagingBranch = createPRToStagingBranch;
+  stateHelper.stagingBranch = stagingBranch;
 
   if (createPRIntoStagingBranch) {
-    await createPRIntoStagingBranch();
+    // await createPRIntoStagingBranch();
+    generatePullRequestURL();
   }
 }
 
 async function createPRIntoStagingBranch() {
   const { status, html_url, statusText } = await Github.createPR(
-    state.owner,
-    state.repo,
+    stateHelper.state.owner,
+    stateHelper.state.repo,
     {
-      base: state.stagingBranch,
+      base: stateHelper.state.stagingBranch,
       body: '@TODO NEED BODY OF PR',
-      head: state.branchName,
-      title: `Prerelease ${state.nextReleaseVersion}`,
+      head: stateHelper.state.branchName,
+      title: `Prerelease ${stateHelper.state.nextReleaseVersion}`,
     },
   );
 
   if (status !== 201) {
-    Log.danger(statusText);
+    stateHelper.addError(statusText);
+    Log.danger(`${CLIConstants.FAILED_TO_CREATE_PR}: ${status} ${statusText}`);
   } else {
     Log.success(statusText);
     Log.confirm(`${GitConstants.PR_CREATED} ${html_url}`);
-  }
-}
-
-/**
- * @deprecated
- */
-async function __pushStagingBranch(stagingBranch: string) {
-  Log.newLine();
-  Log.info(CLIConstants.PUSHING_STAGING_BRANCH);
-  const { error: pushStagingBranchError } = await Git.push(stagingBranch);
-
-  if (pushStagingBranchError) {
-    Log.danger(pushStagingBranchError);
-    state.addError(pushStagingBranchError);
   }
 }
 
@@ -306,8 +274,8 @@ function setOwnerAndRepo() {
       }
 
       const { owner, repo } = Util.getOwnerAndRepo(gitRemoteValue);
-      state.owner = owner;
-      state.repo = repo;
+      stateHelper.owner = owner;
+      stateHelper.repo = repo;
     },
   );
 }
@@ -315,11 +283,19 @@ function setOwnerAndRepo() {
 async function generateReleaseURL() {
   Log.newLine();
   const githubRelaseUrl = Util.generateReleaseURL(
-    state.owner,
-    state.repo,
-    state.nextReleaseVersion,
+    stateHelper.state.owner,
+    stateHelper.state.repo,
+    stateHelper.state.nextReleaseVersion,
   );
-  state.releaseURL = githubRelaseUrl;
-  Log.success('Edit the release notes here:');
+  stateHelper.releaseURL = githubRelaseUrl;
+  Log.info('Edit the release notes here:');
   Log.underline(Log.confirm(githubRelaseUrl));
+}
+
+async function generatePullRequestURL() {
+  Log.newLine();
+  const { owner, branchName, repo, stagingBranch } = stateHelper.state;
+  const URL = `https://github.com/${owner}/${repo}/compare/${stagingBranch}...${branchName}`;
+  Log.info(CLIConstants.CREATE_PR);
+  Log.underline(Log.confirm(URL));
 }
