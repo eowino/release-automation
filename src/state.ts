@@ -2,7 +2,7 @@ import { join } from 'path';
 
 import { PROGRESS_FILE, UNABLE_TO_SERIALISE } from './constants/Release';
 import { IRealease } from './types/Release';
-import { writeStringToFile } from './utilities/file';
+import { renameFile, writeStringToFile } from './utilities/file';
 import * as Log from './utilities/logger';
 
 class ReleaseState {
@@ -99,6 +99,11 @@ class ReleaseState {
       Log.danger(UNABLE_TO_SERIALISE);
       Log.danger(error);
     }
+  }
+
+  public async serializeAndRename() {
+    await this.serialize();
+    await renameFile();
   }
 }
 

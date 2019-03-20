@@ -46,7 +46,8 @@ export async function run() {
   await promptAndSetNextReleaseVersion();
   await pushBranchWithTags();
   await confirmAndCreatePRIntoStaging();
-  await generateReleaseURL();
+  generateReleaseURL();
+  await serialiseProgressAndFinish();
 
   Log.newLine();
   Log.success(CLIConstants.RELEASE_PROCESS_FINISHED);
@@ -65,6 +66,10 @@ async function serialiseProgressAndExit(errorMessage: string | string[]) {
 
   await stateHelper.serialize();
   process.exit();
+}
+
+async function serialiseProgressAndFinish() {
+  await stateHelper.serializeAndRename();
 }
 
 async function promptForNewBranchName() {
@@ -155,7 +160,9 @@ async function getBranchesToMerge() {
       branchesToMerge || selectedBranches,
     );
 
-    stateHelper.mergedBranches = successfulMerges;
+    stateHelper.mergedBranches = stateHelper.state.mergedBranches.concat(
+      successfulMerges,
+    );
 
     if (successfulMerges.length > 0) {
       successfulMerges.forEach(successBranch => {
@@ -287,7 +294,7 @@ function setOwnerAndRepo() {
   });
 }
 
-async function generateReleaseURL() {
+function generateReleaseURL() {
   Log.newLine();
   const githubRelaseUrl = Util.generateReleaseURL(
     stateHelper.state.owner,

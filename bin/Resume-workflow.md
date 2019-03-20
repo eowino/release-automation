@@ -15,5 +15,6 @@
 - use initial state ✅
 - consider switching from 'Would you like to push to a staging branch?' to 'create a PR into a staging branch' ✅
 - git checkout the branch as a precaution ✅
-- list branches already merged ✅
-- rename release-progress to release-progress-complete onComplete so its not read next time
+- compare between merged and toBeMerged branches and list branches already merged ✅
+- serialize and rename release-progress to release-progress-complete onComplete so its not read next time ✅
+- review logic for suggest next release version
