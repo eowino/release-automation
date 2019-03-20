@@ -41,10 +41,7 @@ export function suggestNextReleaseVersion(
   return coerce(newSemver).version;
 }
 
-function getIncrementedVersion(
-  currentVersion: string,
-  nextRelease: INextRelease,
-) {
+function getIncrementedVersion(currentVersion: string, nextRelease: INextRelease) {
   const { minor, patch, major } = coerce(currentVersion);
   return `${major}.${minor + nextRelease.feat}.${patch + nextRelease.fix}`;
 }
@@ -76,14 +73,27 @@ export function generateReleaseURL(
 
 export function matchStringsFromPattern(patterns: string[], strings: string[]) {
   return strings.filter(value => {
-    return Boolean(
-      patterns.find(pattern => value.trim().includes(pattern.trim())),
-    );
+    return Boolean(patterns.find(pattern => value.trim().includes(pattern.trim())));
   });
 }
 
 export function formatGitTagVersion(version: string): string {
-  return version.includes('.') || Number.isInteger(+version)
-    ? `v${version}`
-    : version;
+  return version.includes('.') || Number.isInteger(+version) ? `v${version}` : version;
+}
+
+export function getDiffFromStrings(stringsA: string[] = [], stringsB: string[] = []) {
+  const result: { inStringsAOnly: string[]; inBoth: string[] } = {
+    inBoth: [],
+    inStringsAOnly: [],
+  };
+
+  stringsA.forEach(val => {
+    if (stringsB.indexOf(val) !== -1) {
+      result.inBoth.push(val);
+    } else {
+      result.inStringsAOnly.push(val);
+    }
+  });
+
+  return result;
 }

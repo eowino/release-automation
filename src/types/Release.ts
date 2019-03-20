@@ -9,9 +9,7 @@ export interface IRealease {
   error?: string[];
   /** The list of branches already merged */
   mergedBranches?: string[];
-  /** Whether you want to create a PR to a staging branch */
-  createPRToStagingBranch?: boolean;
-  /** The name of the branch you want to push to */
+  /** The name of the branch you want to create a PR into */
   stagingBranch?: string;
   /** Whether you want to use the existing branch */
   useExistingBranch?: boolean;
@@ -27,4 +25,6 @@ export interface IRealease {
   owner?: string;
   /** The name of the Github repository  */
   repo?: string;
+  /** Should continue with the release process having not selected branches to merge  */
+  shouldContinue?: boolean;
 }

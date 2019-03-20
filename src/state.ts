@@ -18,6 +18,10 @@ class ReleaseState {
     this.state.resume = resume;
   }
 
+  set shouldContinue(shouldContinue: boolean) {
+    this.state.shouldContinue = shouldContinue;
+  }
+
   set owner(owner: string) {
     this.state.owner = owner;
   }
@@ -59,15 +63,11 @@ class ReleaseState {
   }
 
   set useExistingBranch(useExistingBranch: boolean) {
-    this.state.useExistingBranch = useExistingBranch || false;
+    this.state.useExistingBranch = useExistingBranch;
   }
 
   set wishToMerge(wishToMerge: boolean) {
-    this.state.wishToMerge = wishToMerge || false;
-  }
-
-  set createPRToStagingBranch(createPRToStagingBranch: boolean) {
-    this.state.createPRToStagingBranch = createPRToStagingBranch || false;
+    this.state.wishToMerge = wishToMerge;
   }
 
   set nextReleaseVersion(nextReleaseVersion: string) {

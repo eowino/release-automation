@@ -12,15 +12,8 @@
 
 - everywhere there's a call to git merge should use the `It seems a merge failed` error message too ✅
 - change all usages of `spawn` to `exec` ✅
-- use initial state
-- consider switching from 'Would you like to push to a staging branch?' to 'create a PR into a staging branch'
-
-branchName,
-baseBranch,
-selectedBranches,
-mergedBranches,
-branches to mergeBranch,
-
-## Description
-
-- [x] Description of feature/fix here
+- use initial state ✅
+- consider switching from 'Would you like to push to a staging branch?' to 'create a PR into a staging branch' ✅
+- git checkout the branch as a precaution ✅
+- list branches already merged ✅
+- rename release-progress to release-progress-complete onComplete so its not read next time
