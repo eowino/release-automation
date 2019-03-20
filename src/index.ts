@@ -53,15 +53,20 @@ export async function run() {
   Log.success(CLIConstants.RELEASE_PROCESS_FINISHED);
 }
 
-async function serialiseProgressAndExit(errorMessage: string | string[]) {
+async function serialiseProgressAndExit(errorMessage: string | string[], isError = true) {
   if (Array.isArray(errorMessage)) {
     errorMessage.forEach(message => {
       Log.danger(message);
     });
-    stateHelper.addError(errorMessage);
+
+    if (isError) {
+      stateHelper.addError(errorMessage);
+    }
   } else {
     Log.danger(errorMessage);
-    stateHelper.addError(errorMessage);
+    if (isError) {
+      stateHelper.addError(errorMessage);
+    }
   }
 
   await stateHelper.serialize();
@@ -121,7 +126,9 @@ async function setBranchName() {
 async function getBranchesToMerge() {
   Log.newLine();
 
-  if (usePrompt('selectedBranches')) {
+  const { wishToMerge, selectedBranches: initialSelectedBranches } = stateHelper.state;
+
+  if (wishToMerge && initialSelectedBranches.length === 0) {
     const {
       selectedBranches: branchesFromPrompt,
       shouldContinue: shouldContinueFromPrompt,
@@ -143,7 +150,7 @@ async function getBranchesToMerge() {
   );
 
   if (selectedBranches.length === 0 && !shouldContinue) {
-    await serialiseProgressAndExit(CLIConstants.GOODBYE);
+    await serialiseProgressAndExit(CLIConstants.GOODBYE, false);
   }
 
   // diff selectedBranches with mergedBranches and only proceed to merge branches that haven't been merged
@@ -233,6 +240,8 @@ async function gitCheckoutBranch(branchName: string) {
   if (error) {
     await serialiseProgressAndExit(error);
   }
+
+  Log.info(`${GitConstants.SWITCH_TO_BRANCH} ${branchName}`);
 }
 
 async function createStagingBranch(stagingBranch: string) {
@@ -335,5 +344,9 @@ function usePrompt(stateProp: string): boolean {
     formatLogOutput(stateProp, valueFromState);
   }
 
-  return stateHelper.state.resume && !Boolean(valueFromState);
+  // if value doesn't exist - always prompt user
+  const exists = !Boolean(valueFromState);
+
+  // also consider it exists but user doesn't want to use it
+  return exists || (Boolean(stateHelper.state.resume) && exists);
 }
