@@ -43,7 +43,8 @@ export function suggestNextReleaseVersion(
 
 function getIncrementedVersion(currentVersion: string, nextRelease: INextRelease) {
   const { minor, patch, major } = coerce(currentVersion);
-  return `${major}.${minor + nextRelease.feat}.${patch + nextRelease.fix}`;
+  const nextPatch = nextRelease.feat > 0 ? nextRelease.fix : patch + nextRelease.fix;
+  return `${major}.${minor + nextRelease.feat}.${nextPatch}`;
 }
 
 export function getOwnerAndRepo(
