@@ -58,8 +58,8 @@ class ReleaseState {
     this.state.stagingBranch = stagingBranch;
   }
 
-  set useExistingBranch(useExisitingBranch: boolean) {
-    this.state.useExisitingBranch = useExisitingBranch || false;
+  set useExistingBranch(useExistingBranch: boolean) {
+    this.state.useExistingBranch = useExistingBranch || false;
   }
 
   set wishToMerge(wishToMerge: boolean) {

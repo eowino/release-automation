@@ -14,7 +14,7 @@ export interface IRealease {
   /** The name of the branch you want to push to */
   stagingBranch?: string;
   /** Whether you want to use the existing branch */
-  useExisitingBranch?: boolean;
+  useExistingBranch?: boolean;
   /** Whether you wish to merge branches */
   wishToMerge?: boolean;
   /** Next release version */

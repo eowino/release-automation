@@ -8,5 +8,5 @@ export interface IPromptBranches {
 export interface IPromptTargetBranches {
   branchName: string;
   baseBranch: string;
-  useExisiting?: boolean;
+  useExisting?: boolean;
 }

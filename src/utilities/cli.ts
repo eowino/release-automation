@@ -124,7 +124,7 @@ export async function promptForNewBranchName(): Promise<
   return {
     baseBranch,
     branchName: defaultChosen ? null : branchName,
-    useExisiting: defaultChosen,
+    useExisting: defaultChosen,
   };
 }
 
