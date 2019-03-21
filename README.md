@@ -44,10 +44,12 @@ release-automation
    The suggested version will be used as the default version for the next release **if**
    you don't provide one. Other semver versions are not suggested for simplicity, but you may specify.
 
-5. It will then set `npm version` which will subsequently also `git tag` the release.
+5. It will then set `npm version` which will subsequently also `git tag` the release. If that fails (e.g. package.json doesn't exist), it will set the git tag version manually.
 
 6. The current branch will then be pushed with tags to github.
 
-7. The current branch will then be merged into the staging branch. The staging branch will then be pushed.
+7. Prompts you if you'd like to create a PR into a staging branch, if you would, provide the staging branch
 
-8. A Github link to the release notes page for that release will be printed.
+8. A Github link will be printed that directs you to the PR page for the branch you specified into the staging branch
+
+9. A Github link to the release notes page for that release will also be printed.
