@@ -41,36 +41,60 @@ export function suggestNextReleaseVersion(
   return coerce(newSemver).version;
 }
 
-function getIncrementedVersion(
-  currentVersion: string,
-  nextRelease: INextRelease,
-) {
+function getIncrementedVersion(currentVersion: string, nextRelease: INextRelease) {
   const { minor, patch, major } = coerce(currentVersion);
-  return `${major}.${minor + nextRelease.feat}.${patch + nextRelease.fix}`;
+  const nextPatch = nextRelease.feat > 0 ? nextRelease.fix : patch + nextRelease.fix;
+  return `${major}.${minor + nextRelease.feat}.${nextPatch}`;
 }
 
-export function generateReleaseURL(
+export function getOwnerAndRepo(
   gitRemoteOriginURL: string,
-  releaseVersion: string,
-): string {
+): {
+  owner: string;
+  repo: string;
+} {
   const delimeter = gitRemoteOriginURL.startsWith('git') ? ':' : '/';
   const [_, ownerAndRepo] = gitRemoteOriginURL.split(`github.com${delimeter}`);
   const [owner, repoWithGit] = ownerAndRepo.split('/');
-  const repo = repoWithGit.substring(0, repoWithGit.length - 4);
+  const [repo] = repoWithGit.split('.git');
 
+  return {
+    owner,
+    repo,
+  };
+}
+
+export function generateReleaseURL(
+  owner: string,
+  repo: string,
+  releaseVersion: string,
+): string {
   return `https://github.com/${owner}/${repo}/releases/new?tag=v${releaseVersion}`;
 }
 
 export function matchStringsFromPattern(patterns: string[], strings: string[]) {
   return strings.filter(value => {
-    return Boolean(
-      patterns.find(pattern => value.trim().includes(pattern.trim())),
-    );
+    return Boolean(patterns.find(pattern => value.trim().includes(pattern.trim())));
   });
 }
 
 export function formatGitTagVersion(version: string): string {
-  return version.includes('.') || Number.isInteger(+version)
-    ? `v${version}`
-    : version;
+  return version.includes('.') || Number.isInteger(+version) ? `v${version}` : version;
+}
+
+export function getDiffFromStrings(stringsA: string[] = [], stringsB: string[] = []) {
+  const result: { inStringsAOnly: string[]; inBoth: string[] } = {
+    inBoth: [],
+    inStringsAOnly: [],
+  };
+
+  stringsA.forEach(val => {
+    if (stringsB.indexOf(val) !== -1) {
+      result.inBoth.push(val);
+    } else {
+      result.inStringsAOnly.push(val);
+    }
+  });
+
+  return result;
 }

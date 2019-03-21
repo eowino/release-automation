@@ -19,21 +19,30 @@ function isRequired(validationMessage?: string) {
   };
 }
 
-async function continueIfBranchesNotChosen(
-  currentBranch: string,
-): Promise<boolean> {
+async function continueIfBranchesNotChosen(currentBranch: string): Promise<boolean> {
   const branchMessage = ` (current branch = ${currentBranch})`;
-  const { shouldContinue }: { shouldContinue: boolean } = await inquirer.prompt(
-    {
-      message: Prompt.NO_BRANCHES_CONTINUE + branchMessage,
-      name: 'shouldContinue',
-      type: 'confirm',
-    },
-  );
+  const { shouldContinue }: { shouldContinue: boolean } = await inquirer.prompt({
+    message: Prompt.NO_BRANCHES_CONTINUE + branchMessage,
+    name: 'shouldContinue',
+    type: 'confirm',
+  });
 
   return shouldContinue;
 }
 
+export async function resumeReleaseProcess(): Promise<boolean> {
+  const { resume }: { resume: boolean } = await inquirer.prompt({
+    message: Prompt.RESUME,
+    name: 'resume',
+    type: 'confirm',
+  });
+
+  return resume;
+}
+
+/**
+ * @param currentBranch The current branch so it can be filtered out of list of branches to merge
+ */
 export async function promptBranches(
   currentBranch: string,
 ): Promise<CLITypes.IPromptBranches> {
@@ -41,13 +50,13 @@ export async function promptBranches(
   const { error } = await Git.fetchAll();
 
   if (error) {
-    return null;
+    return {
+      error: error as string,
+    };
   }
 
   const branches = await Git.getAllBranches();
-  const withoutCurrentBranch = branches.filter(
-    branch => branch !== currentBranch,
-  );
+  const withoutCurrentBranch = branches.filter(branch => branch !== currentBranch);
 
   let filteredBranches = await getFilteredBranches(withoutCurrentBranch);
 
@@ -61,9 +70,7 @@ export async function promptBranches(
     }
   }
 
-  const {
-    selectedBranches,
-  }: { selectedBranches: string[] } = await inquirer.prompt({
+  const { selectedBranches }: { selectedBranches: string[] } = await inquirer.prompt({
     choices: filteredBranches,
     message: Prompt.CHOOSE_BRANCHES,
     name: 'selectedBranches',
@@ -87,9 +94,7 @@ export async function promptBranches(
   };
 }
 
-export async function promptForNewBranchName(): Promise<
-  CLITypes.IPromptTargetBranches
-> {
+export async function promptForNewBranchName(): Promise<CLITypes.IPromptTargetBranches> {
   const { branchName }: { branchName: string } = await inquirer.prompt({
     default: Prompt.USE_EXISTING_BRANCH,
     message: Prompt.NEW_BRANCH_NAME,
@@ -112,7 +117,7 @@ export async function promptForNewBranchName(): Promise<
   return {
     baseBranch,
     branchName: defaultChosen ? null : branchName,
-    useExisiting: defaultChosen,
+    useExisting: defaultChosen,
   };
 }
 
@@ -120,10 +125,7 @@ export async function promptForNextReleaseVersion(
   branchNames: string[],
 ): Promise<{ nextVersion: string; suggestedVersion: string }> {
   const currentVersion = NPM.getCurrentNpmVersion();
-  const suggestedVersion = Util.suggestNextReleaseVersion(
-    currentVersion,
-    branchNames,
-  );
+  const suggestedVersion = Util.suggestNextReleaseVersion(currentVersion, branchNames);
   const { nextVersion }: { nextVersion: string } = await inquirer.prompt({
     default: suggestedVersion,
     message: Prompt.NEXT_RELEASE_VERSION,
@@ -150,9 +152,7 @@ export async function confirmBranches(branches: string[]): Promise<boolean> {
   return confirmed;
 }
 
-export async function getFilteredBranches(
-  branches: string[],
-): Promise<string[]> {
+export async function getFilteredBranches(branches: string[]): Promise<string[]> {
   const { patterns }: { patterns: string } = await inquirer.prompt({
     default: Prompt.SHOW_ALL_BRANCHES,
     message: Prompt.FILTER_BRANCHES,
@@ -190,14 +190,16 @@ export async function doYouWishToMerge(): Promise<boolean> {
   return wishToMerge;
 }
 
-export async function pushToStagingBranch(): Promise<{
-  pushToStaging: boolean;
+export async function createPRIntoStagingBranch(): Promise<{
+  createPRToStagingBranch: boolean;
   stagingBranch: string;
 }> {
-  const { pushToStaging }: { pushToStaging: boolean } = await inquirer.prompt({
+  const {
+    createPRToStagingBranch,
+  }: { createPRToStagingBranch: boolean } = await inquirer.prompt({
     default: true,
-    message: Prompt.PUSH_TO_STAGING,
-    name: 'pushToStaging',
+    message: Prompt.CREATE_PR_TO_STAGING,
+    name: 'createPRToStagingBranch',
     type: 'confirm',
   });
 
@@ -207,11 +209,11 @@ export async function pushToStagingBranch(): Promise<{
     name: 'stagingBranch',
     type: 'input',
     validate: isRequired(),
-    when: pushToStaging,
+    when: createPRToStagingBranch,
   });
 
   return {
-    pushToStaging,
+    createPRToStagingBranch,
     stagingBranch,
   };
 }
