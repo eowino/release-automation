@@ -9,6 +9,11 @@ import * as NPM from './utilities/npm';
 import * as Util from './utilities/utilities';
 
 export async function run() {
+  if (isVersionRequested()) {
+    Log.info(require('../package.json').version);
+    process.exit();
+  }
+
   const isGitRepo = await Git.isGitRepository();
   if (!isGitRepo) {
     await serialiseProgressAndExit(CLIConstants.MUST_BE_GIT_REPO);
@@ -51,6 +56,12 @@ export async function run() {
 
   Log.newLine();
   Log.success(CLIConstants.RELEASE_PROCESS_FINISHED);
+}
+
+function isVersionRequested() {
+  const flags = process.argv.slice(2);
+  const versions = ['-v', '--v', '-version', '--version'];
+  return flags.some(flag => versions.includes(flag));
 }
 
 async function serialiseProgressAndExit(errorMessage: string | string[], isError = true) {
