@@ -26,6 +26,8 @@ Then simply run the following in your `git` instantiated directory
 release-automation
 ```
 
+Use any of the following flags to print the version of the module: `-v`, `--v`, `-version`, `--version` 
+
 ## Steps
 
 1. Prompts you for a branch name. If you don't provide one, the current branch will be used.
