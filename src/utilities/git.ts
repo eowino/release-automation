@@ -120,9 +120,7 @@ export async function createBranch(
 /**
  * @param branchName The name of the branch you want to merge into the current branch
  */
-export async function mergeBranch(
-  branchName: string,
-): Promise<IResponseString> {
+export async function mergeBranch(branchName: string): Promise<IResponseString> {
   const cmd = `git merge ${ORIGIN}${branchName}`;
 
   const promise: Promise<IResponseString> = new Promise(res => {
@@ -142,9 +140,7 @@ export async function mergeBranch(
  * @param branches The list of branches you want to merge into the current branch
  * @returns A list of error messages
  */
-export async function mergeBranches(
-  branches: string[],
-): Promise<IResponseStringList> {
+export async function mergeBranches(branches: string[]): Promise<IResponseStringList> {
   const succesfulMerges: string[] = [];
 
   for (const branch of branches) {
@@ -186,8 +182,8 @@ export async function push(
   return promise;
 }
 
-export async function pushTags(): Promise<IResponseString> {
-  const cmd = 'git push origin --tags';
+export async function pushTags(tagVersion: string): Promise<IResponseString> {
+  const cmd = `git push origin ${tagVersion}`;
 
   const promise: Promise<IResponseString> = new Promise(res => {
     exec(cmd, (err, value) => {
@@ -202,9 +198,7 @@ export async function pushTags(): Promise<IResponseString> {
   return promise;
 }
 
-export async function setGitTagVersion(
-  version: string,
-): Promise<IResponseString> {
+export async function setGitTagVersion(version: string): Promise<IResponseString> {
   const nextVersion = formatGitTagVersion(version);
   const cmd = `git tag -a ${nextVersion} -m ${nextVersion}`;
 
@@ -221,9 +215,7 @@ export async function setGitTagVersion(
   return promise;
 }
 
-export async function checkoutBranch(
-  branchName: string,
-): Promise<IResponseString> {
+export async function checkoutBranch(branchName: string): Promise<IResponseString> {
   const cmd = `git checkout ${branchName}`;
 
   const promise: Promise<IResponseString> = new Promise(res => {
@@ -263,6 +255,22 @@ export async function getRemote(): Promise<IResponseString> {
         res({ error: err.message });
       }
       res({ value });
+    });
+  });
+
+  return promise;
+}
+
+export async function getTags(): Promise<IResponseStringList> {
+  const cmd = `git tag`;
+
+  const promise: Promise<IResponseStringList> = new Promise(res => {
+    exec(cmd, (err, value) => {
+      if (err) {
+        res({ error: err.message });
+      }
+      const tags = value.split('\n').filter(Boolean);
+      res({ value: tags });
     });
   });
 

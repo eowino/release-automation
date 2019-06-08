@@ -234,12 +234,27 @@ async function promptAndSetNextReleaseVersion() {
   }
 }
 
+async function getTagToPush() {
+  // this function is necessary as setting tags with npm appends the letter v to the name
+  // i.e. running npm version 1.0.0 will set a tag named v1.0.0
+  // pushing an invalid tag name throws an error
+  const { nextReleaseVersion } = stateHelper.state;
+  const { error, value: tags } = await Git.getTags();
+
+  if (error) {
+    await serialiseProgressAndExit(error);
+  }
+
+  return tags.find(tag => tag.includes(nextReleaseVersion));
+}
+
 async function pushBranchWithTags() {
   const { branchName } = stateHelper.state;
   Log.info(CLIConstants.PUSHING_GIT_TAGS);
 
   const { error: pushError } = await Git.push(branchName);
-  const { error: pushTagsError } = await Git.pushTags();
+  const tagToPush = await getTagToPush();
+  const { error: pushTagsError } = await Git.pushTags(tagToPush);
 
   if (pushError || pushTagsError) {
     await serialiseProgressAndExit([pushError as string, pushTagsError as string]);
